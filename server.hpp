@@ -4,6 +4,7 @@
 #include <vector>
 #include <poll.h>
 #include "client.hpp"
+#include "chanel.hpp"
 
 class Server
 {
@@ -14,6 +15,7 @@ class Server
 		static bool _signal;
 		std::vector<Client> _clients;
 		std::vector<struct pollfd> _fds;
+		std::vector<Chanels> _chanels;
 
 	public:
 		Server(std::string port, std::string password);
@@ -21,10 +23,12 @@ class Server
 		Server const &operator=(Server &server);
 		~Server();
 
-		void serverInit();
-		// void serverSocketCreate();
+		void serverSocketCreate();
+		void startServer();
 		void acceptNewClient();
-		void RecieveNewData(int fd);
+		void recieveNewData(int fd);
+
+		void addChanel(Chanels &chanel);
 
 		static void signalHandler(int signum);
 

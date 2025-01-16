@@ -1,6 +1,7 @@
 #include <iostream>
 #include "server.hpp"
 #include "client.hpp"
+#include <signal.h>
 
 int err(std::string err)
 {
@@ -16,13 +17,14 @@ int main(int ac, char **argv)
 	{
 		std::string port = std::string(argv[1]);
 		std::string password = std::string(argv[2]);
+		signal(SIGINT, Server::signalHandler);
+		signal(SIGQUIT, Server::signalHandler);
 		Server server(port, password);
+		server.startServer();
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
 		return 1;
 	}
-	
-	
 }

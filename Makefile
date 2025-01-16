@@ -1,12 +1,19 @@
-SRC = server.cpp \
-		client.cpp \
-		main.cpp
-OBJ = $(SRC:.cpp=.o)
+NAME = ircserv
+
 CC = c++
-RM = rm -f
+
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98
 
-NAME = ircserv
+SRC = main.cpp \
+		server_build.cpp \
+		client.cpp \
+		chanel.cpp \
+		chanel_operations.cpp \
+		server.cpp
+
+OBJ = $(SRC:.cpp=.o)
+
+RM = rm -f
 
 all: $(NAME)
 
