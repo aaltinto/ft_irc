@@ -16,7 +16,7 @@ class Server
 		std::vector<struct pollfd> _fds;
 
 	public:
-		Server(int port, std::string password);
+		Server(std::string port, std::string password);
 		Server(Server const &server);
 		Server const &operator=(Server &server);
 		~Server();
