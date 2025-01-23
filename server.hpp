@@ -28,7 +28,13 @@ class Server
 		void acceptNewClient();
 		void recieveNewData(int fd);
 
-		void addChanel(Chanels &chanel);
+		void join(std::vector<std::string> args, int fd);
+		void topic(std::vector<std::string> args, int fd);
+		void quit(std::vector<std::string> args, int fd);
+
+		Client &getClient(int fd);
+
+		void addChanel(std::string chanelName, Client &client);
 
 		static void signalHandler(int signum);
 

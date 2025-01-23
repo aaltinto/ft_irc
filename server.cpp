@@ -51,3 +51,43 @@ Server const &Server::operator=(Server &server)
 	(void)server;
 	return *this;
 }
+
+Client &Server::getClient(int fd)
+{
+	for (size_t i = 0; i < this->_clients.size(); i++)
+	{
+		if (this->_clients[i].getFd() == fd)
+			return this->_clients[i];
+	}
+	throw std::runtime_error("Client couldn't found");
+}
+
+void Server::join(std::vector<std::string> args, int fd)
+{
+	std::string chanelName;
+	if (args.size() <= 1)
+		return;
+	std::cout << "args size: "<< args.size() << "\n";
+	if (args[1][0] != '#')
+	{
+		std::cout << "Chanel name has to start with '#'" << std::endl;
+		return;
+	}
+	chanelName = args[1];
+
+	for (size_t i = 0; i < this->_chanels.size(); i++)
+	{
+		std::cout << std::endl;
+		std::cout << "_chanels: " << this->_chanels[i].getChanelName() << std::endl << "chanelName: " << chanelName << std::endl;
+		std::cout << std::endl;
+		if(this->_chanels[i].getChanelName() == chanelName)
+		{
+			this->_chanels[i].joinChanel(this->getClient(fd));
+			std::cout << "joinChanel\n";
+			return ;
+		}
+	}
+	std::cout << "addChanel\n";
+	this->addChanel(chanelName, this->getClient(fd));
+
+}

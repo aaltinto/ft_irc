@@ -20,6 +20,8 @@ class Chanels
 		Chanels const &operator=(Chanels const &Chanels);
 		~Chanels();
 		
+		void joinChanel(Client &client);
+
 		std::string getChanelName();
 		void setChanelName(std::string chanelName);
 		

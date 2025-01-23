@@ -33,17 +33,39 @@ std::vector<std::string> commandSlicer(char *buff)
 	size_t j = 0;
 	for (size_t i = 0; i < strBuff.size(); i++)
 	{
-		if (strBuff[i] == ' ')
+		if (strBuff[i] == 32)
 		{
-			splittedCommands.push_back(strBuff.substr(j, i));
-			j = i;
+			splittedCommands.push_back(strBuff.substr(j, i - j));
+			j = i + 1;
 		}
 	}
-	splittedCommands.push_back(strBuff.substr(j, strBuff.size()));
+	splittedCommands.push_back(strBuff.substr(j, strBuff.size() -j-1));
 	
-	for (size_t i = 0; i < splittedCommands.size(); i++)
-		std::cout << splittedCommands[i] << " amk " << std::endl;
 	return splittedCommands;
+}
+
+std::string to_lower(std::string str)
+{
+	std::string ret(str);
+	for (size_t i = 0; i < str.size(); i++)
+		ret[i] = std::tolower(str[i]);
+	std::cout << "to_lower ret: " << ret << std::endl;
+	return ret;
+}
+
+int detectCommands(std::vector<std::string> commands)
+{
+	std::string list[] = {"/join", "/topic"};
+	for (size_t i = 0; i < list->size() - 1; i++)
+	{
+		std::cout << "commands[0]: " << commands[0] << "\nlist " << list[i] << std::endl;
+		if (to_lower(commands[0]) == list[i])
+		{
+			std::cout << "i: " << i <<std::endl;
+			return i;
+		}
+	}
+	return -1;
 }
 
 void Server::recieveNewData(int fd)
@@ -75,7 +97,17 @@ void Server::recieveNewData(int fd)
 	else
 	{
 		buff[bytes] = '\0';
-		commandSlicer(buff);
+		std::vector<std::string> commands = commandSlicer(buff);
+		std::cout << "Has arrived switch case" << std::endl;
+		switch (detectCommands(commands))
+		{
+			case 0:
+				std::cout << "-join-\n"; 
+				this->join(commands, fd);
+				break;
+			default:
+				break;
+		}
 		// std::cout << "Client <" << fd << "> \n Data: \n" << buff << std::endl;
 	}
 }

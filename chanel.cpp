@@ -1,5 +1,5 @@
 #include "chanel.hpp"
-
+#include <iostream>
 
 Chanels::Chanels(Client &client, std::string chanelName)
 {
@@ -23,6 +23,15 @@ Chanels const &Chanels::operator=(Chanels const &chanels)
 {
 	(void)chanels;
 	return *this;
+}
+
+void Chanels::joinChanel(Client &client)
+{
+	for (size_t i = 0; i < this->_clients.size(); i++)
+		if (client.getFd() == this->_clients[i].getFd())
+			return;
+	this->_clients.push_back(client);
+	std::cout << "Client " << client.getFd() << " joined " << this->getChanelName() <<std::endl;
 }
 
 std::string Chanels::getChanelName()
