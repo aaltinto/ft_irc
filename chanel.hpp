@@ -22,7 +22,7 @@ class Chanels
 		
 		void joinChanel(Client &client);
 
-		std::string getChanelName();
+		std::string getChanelName() const;
 		void setChanelName(std::string chanelName);
 		
 		std::string getTopicName();

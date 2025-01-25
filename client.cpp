@@ -10,7 +10,7 @@ Client::Client(Client const &client)
 	this->setIpAddr(client.getIpAdd());
 }
 
-Client const &Client::operator=(Client &client)
+Client const &Client::operator=(Client const &client)
 {
 	this->setFd(client.getFd());
 	this->setIpAddr(client.getIpAdd());

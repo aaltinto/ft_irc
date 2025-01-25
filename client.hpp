@@ -10,7 +10,7 @@ class Client
 	public:
 		Client();
 		Client(Client const &client);
-		Client const &operator=(Client &client);
+		Client const &operator=(Client const &client);
 		~Client();
 
 		int getFd() const;

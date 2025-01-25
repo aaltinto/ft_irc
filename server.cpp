@@ -75,16 +75,19 @@ void Server::join(std::vector<std::string> args, int fd)
 	}
 	chanelName = args[1];
 
-	for (size_t i = 0; i < this->_chanels.size(); i++)
+	if (this->_chanels.size() != 0)
 	{
-		std::cout << std::endl;
-		std::cout << "_chanels: " << this->_chanels[i].getChanelName() << std::endl << "chanelName: " << chanelName << std::endl;
-		std::cout << std::endl;
-		if(this->_chanels[i].getChanelName() == chanelName)
+		for (size_t i = 0; i <= this->_chanels.size(); i++)
 		{
-			this->_chanels[i].joinChanel(this->getClient(fd));
-			std::cout << "joinChanel\n";
-			return ;
+			std::cout << std::endl;
+			std::cout << "_chanels: " << this->_chanels[i].getChanelName() << std::endl << "chanelName: " << chanelName << std::endl;
+			std::cout << std::endl;
+			if(this->_chanels[i].getChanelName() == chanelName)
+			{
+				this->_chanels[i].joinChanel(this->getClient(fd));
+				std::cout << "joinChanel\n";
+				return ;
+			}
 		}
 	}
 	std::cout << "addChanel\n";
