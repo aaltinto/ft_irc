@@ -24,6 +24,8 @@ class Channels
 
 		std::string getChannelName() const;
 		void setChannelName(std::string channelName);
+
+		std::string getChannelClients();
 		
 		std::string getTopicName();
 		void setTopicName(std::string topicName);

@@ -52,6 +52,16 @@ Server const &Server::operator=(Server &server)
 	return *this;
 }
 
+int Server::getChannelIndex(std::string channelName)
+{
+	for (size_t i = 0; i < this->_channels.size(); i++)
+	{
+		if (this->_channels[i].getChannelName() == channelName)
+			return i;
+	}
+	return -1;
+}
+
 Client &Server::getClient(int fd)
 {
 	for (size_t i = 0; i < this->_clients.size(); i++)
@@ -62,34 +72,12 @@ Client &Server::getClient(int fd)
 	throw std::runtime_error("Client couldn't found");
 }
 
-void Server::join(std::vector<std::string> args, int fd)
+int Server::getClientIndex(int fd)
 {
-	std::string channelName;
-	if (args.size() <= 1)
-		return;
-	if (args[1][0] != '#')
+	for (size_t i = 0; i < this->_clients.size(); i++)
 	{
-		std::cout << "Channel name has to start with '#'" << std::endl;
-		return;
+		if (this->_clients[i].getFd() == fd)
+			return i;
 	}
-	channelName = args[1];
-
-	if (this->_channels.size() != 0)
-	{
-		for (size_t i = 0; i <= this->_channels.size(); i++)
-		{
-			if(this->_channels[i].getChannelName() == channelName)
-			{
-				this->_channels[i].joinChannel(this->getClient(fd));
-				std::cout << "joinChannel\n";
-				return ;
-			}
-		}
-	}
-	std::cout << "addChannel\n";
-	this->addChannel(channelName, this->getClient(fd));
-
-	// irc numeric replies
-	// https://gist.github.com/proxypoke/2264878
-
+	throw std::runtime_error("Client couldn't found");
 }

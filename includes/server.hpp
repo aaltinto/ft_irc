@@ -28,11 +28,17 @@ class Server
 		void acceptNewClient();
 		void recieveNewData(int fd);
 
+
 		void join(std::vector<std::string> args, int fd);
+		void handleJoin(Client &client, Channels &channel);
+		void nick(std::vector<std::string> args, int fd);
+		void user(std::vector<std::string> args, int fd);
 		void topic(std::vector<std::string> args, int fd);
 		void quit(std::vector<std::string> args, int fd);
 
+		int getChannelIndex(std::string channelName);
 		Client &getClient(int fd);
+		int getClientIndex(int fd);
 
 		void addChannel(std::string channelName, Client &client);
 

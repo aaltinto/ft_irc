@@ -3,7 +3,6 @@
 
 Channels::Channels(Client &client, std::string channelName): _name(channelName)
 {
-	this->_clients.push_back(client);
 	this->_admins.push_back(client);
 	this->_topic = 0;
 }
@@ -59,3 +58,22 @@ void Channels::setTopicName(std::string topicName)
 	this->_topic_name = topicName;
 }
 
+std::string Channels::getChannelClients()
+{
+	std::string clients;
+	for (size_t j = 0; j < this->_admins.size(); j++)
+	{
+		if (j == this->_admins.size() - 1)
+			clients += "@" + this->_admins[j].getNick();
+		else
+			clients += "@" + this->_admins[j].getNick() + " ";
+	}
+	for (size_t i = 0; i < this->_clients.size(); i++)
+	{
+		if (i == this->_clients.size() - 1)
+			clients += this->_clients[i].getNick();
+		else
+			clients += this->_clients[i].getNick() + " ";
+	}
+	return clients;
+}

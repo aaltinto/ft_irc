@@ -62,7 +62,7 @@ int detectCommands(std::vector<std::string> commands)
 	{
 		std::cout << "Command["<< i << "]: " << commands[i] << std::endl;
 	}
-	std::string list[] = {"join", "nick", "topic", "quit"};
+	std::string list[] = {"join", "nick", "user", "topic", "quit"};
 	for (size_t i = 0; i < list->size() - 1; i++)
 	{
 		if (to_lower(commands[0]) == list[i])
@@ -109,10 +109,14 @@ void Server::recieveNewData(int fd)
 				std::cout << "-join-\n"; 
 				this->join(commands, fd);
 				break;
-			// case 1:
-			// 	std::cout << "-join-\n"; 
-			// 	this->join(commands, fd);
-			// 	break;
+			case 1:
+				std::cout << "-nick-\n"; 
+				this->nick(commands, fd);
+				break;
+			case 2:
+				std::cout << "-user-\n"; 
+				this->user(commands, fd);
+				break;
 			default:
 				break;
 		}

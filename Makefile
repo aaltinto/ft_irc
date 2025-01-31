@@ -10,6 +10,7 @@ SRC = src/main.cpp \
 		src/client.cpp \
 		channel/channel.cpp \
 		channel/channel_operations.cpp \
+		communication/send_message.cpp \
 
 OBJ = $(SRC:.cpp=.o)
 
