@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "client.hpp"
+#include "../includes/client.hpp"
 
-class Chanels
+class Channels
 {
 	private:
 		int _topic;
@@ -15,15 +15,15 @@ class Chanels
 		std::vector<Client> _admins;
 		
 	public:
-		Chanels(Client &client, std::string chanelName);
-		Chanels(Chanels const &chanels);
-		Chanels const &operator=(Chanels const &Chanels);
-		~Chanels();
+		Channels(Client &client, std::string channelName);
+		Channels(Channels const &channels);
+		Channels const &operator=(Channels const &Channels);
+		~Channels();
 		
-		void joinChanel(Client &client);
+		void joinChannel(Client &client);
 
-		std::string getChanelName() const;
-		void setChanelName(std::string chanelName);
+		std::string getChannelName() const;
+		void setChannelName(std::string channelName);
 		
 		std::string getTopicName();
 		void setTopicName(std::string topicName);

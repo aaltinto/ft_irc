@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include <poll.h>
-#include "client.hpp"
-#include "chanel.hpp"
+#include "../includes/client.hpp"
+#include "../includes/channel.hpp"
 
 class Server
 {
@@ -15,7 +15,7 @@ class Server
 		static bool _signal;
 		std::vector<Client> _clients;
 		std::vector<struct pollfd> _fds;
-		std::vector<Chanels> _chanels;
+		std::vector<Channels> _channels;
 
 	public:
 		Server(std::string port, std::string password);
@@ -34,7 +34,7 @@ class Server
 
 		Client &getClient(int fd);
 
-		void addChanel(std::string chanelName, Client &client);
+		void addChannel(std::string channelName, Client &client);
 
 		static void signalHandler(int signum);
 

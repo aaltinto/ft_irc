@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "../includes/server.hpp"
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -48,20 +48,25 @@ std::string to_lower(std::string str)
 {
 	std::string ret(str);
 	for (size_t i = 0; i < str.size(); i++)
+	{
+		if (str[i] == '/')
+			continue;
 		ret[i] = std::tolower(str[i]);
-	std::cout << "to_lower ret: " << ret << std::endl;
+	}
 	return ret;
 }
 
 int detectCommands(std::vector<std::string> commands)
 {
-	std::string list[] = {"/join", "/topic"};
+	for (size_t i = 0; i < commands.size(); i++)
+	{
+		std::cout << "Command["<< i << "]: " << commands[i] << std::endl;
+	}
+	std::string list[] = {"join", "nick", "topic", "quit"};
 	for (size_t i = 0; i < list->size() - 1; i++)
 	{
-		std::cout << "commands[0]: " << commands[0] << "\nlist " << list[i] << std::endl;
 		if (to_lower(commands[0]) == list[i])
 		{
-			std::cout << "i: " << i <<std::endl;
 			return i;
 		}
 	}
@@ -98,13 +103,16 @@ void Server::recieveNewData(int fd)
 	{
 		buff[bytes] = '\0';
 		std::vector<std::string> commands = commandSlicer(buff);
-		std::cout << "Has arrived switch case" << std::endl;
 		switch (detectCommands(commands))
 		{
 			case 0:
 				std::cout << "-join-\n"; 
 				this->join(commands, fd);
 				break;
+			// case 1:
+			// 	std::cout << "-join-\n"; 
+			// 	this->join(commands, fd);
+			// 	break;
 			default:
 				break;
 		}

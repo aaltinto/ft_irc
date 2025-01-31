@@ -2,8 +2,8 @@
 
 #include <vector>
 #include <string>
-#include "client.hpp"
-#include "chanel.hpp"
+#include "../includes/client.hpp"
+#include "../includes/channel.hpp"
 class Commands
 {
 	private:
@@ -15,5 +15,5 @@ class Commands
 
 void Commands::join(std::vector<std::string> args, Client client)
 {
-	std::string chanelName;
+	std::string channelName;
 }

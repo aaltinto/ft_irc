@@ -1,6 +1,6 @@
 #include <iostream>
-#include "server.hpp"
-#include "client.hpp"
+#include "../includes/server.hpp"
+#include "../includes/client.hpp"
 #include <signal.h>
 
 int err(std::string err)

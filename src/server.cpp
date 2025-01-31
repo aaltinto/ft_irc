@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "../includes/server.hpp"
 #include <stdexcept>
 #include <signal.h>
 #include <cstdlib>
@@ -64,33 +64,32 @@ Client &Server::getClient(int fd)
 
 void Server::join(std::vector<std::string> args, int fd)
 {
-	std::string chanelName;
+	std::string channelName;
 	if (args.size() <= 1)
 		return;
-	std::cout << "args size: "<< args.size() << "\n";
 	if (args[1][0] != '#')
 	{
-		std::cout << "Chanel name has to start with '#'" << std::endl;
+		std::cout << "Channel name has to start with '#'" << std::endl;
 		return;
 	}
-	chanelName = args[1];
+	channelName = args[1];
 
-	if (this->_chanels.size() != 0)
+	if (this->_channels.size() != 0)
 	{
-		for (size_t i = 0; i <= this->_chanels.size(); i++)
+		for (size_t i = 0; i <= this->_channels.size(); i++)
 		{
-			std::cout << std::endl;
-			std::cout << "_chanels: " << this->_chanels[i].getChanelName() << std::endl << "chanelName: " << chanelName << std::endl;
-			std::cout << std::endl;
-			if(this->_chanels[i].getChanelName() == chanelName)
+			if(this->_channels[i].getChannelName() == channelName)
 			{
-				this->_chanels[i].joinChanel(this->getClient(fd));
-				std::cout << "joinChanel\n";
+				this->_channels[i].joinChannel(this->getClient(fd));
+				std::cout << "joinChannel\n";
 				return ;
 			}
 		}
 	}
-	std::cout << "addChanel\n";
-	this->addChanel(chanelName, this->getClient(fd));
+	std::cout << "addChannel\n";
+	this->addChannel(channelName, this->getClient(fd));
+
+	// irc numeric replies
+	// https://gist.github.com/proxypoke/2264878
 
 }
