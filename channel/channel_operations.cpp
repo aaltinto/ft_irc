@@ -68,6 +68,11 @@ void Server::privmsg(std::vector<std::string> args, int fd)
 		return;
 	Client client = this->getClient(fd);
 	std::string myMSG = ":" + client.getFullIdenifer() + " PRIVMSG " + args[1] + " :" + args[2];
+	for (size_t i = 3; i < args.size(); i++)
+	{
+		myMSG += " ";
+		myMSG += args[i];
+	}
 	std::cout << args[1];
 	if (args[1][0] == '#')
 	{
@@ -75,4 +80,6 @@ void Server::privmsg(std::vector<std::string> args, int fd)
 		Channels channel = this->getChannelbyName(args[1]);
 		return channel.sendMessageToAll(myMSG, fd);
 	}
+	int client_fd = this->getClientbyNick(args[1]);
+	sendMessage(client_fd, myMSG);
 }

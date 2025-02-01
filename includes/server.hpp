@@ -30,6 +30,7 @@ class Server
 		void recieveNewData(int fd);
 
 		Channels getChannelbyName(std::string channelName);
+		int getClientbyNick(std::string nickname);
 
 
 		void join(std::vector<std::string> args, int fd);

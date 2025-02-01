@@ -92,3 +92,13 @@ Channels Server::getChannelbyName(std::string channelName)
 	}
 	throw std::runtime_error("Channel couldn't find");
 }
+
+int Server::getClientbyNick(std::string nickname)
+{
+	for (size_t i = 0; i < this->_clients.size(); i++)
+	{
+		if (this->_clients[i].getNick() == nickname)
+			return this->_clients[i].getFd();
+	}
+	throw std::runtime_error("Client couldn't find");
+}
