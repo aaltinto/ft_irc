@@ -49,7 +49,30 @@ void Server::nick(std::vector<std::string> args, int fd)
 
 void Server::user(std::vector<std::string> args, int fd)
 {
+	if (args.size() < 5)
+	{
+		std::cout << args.size();
+		throw std::runtime_error("Array out of bounds");
+	}
 	int i = this->getClientIndex(fd);
 	this->_clients[i].setUsername(args[1]);
 	this->_clients[i].setRealName(args[4]);
+	std::cout << this->_clients[i].getFullIdenifer() << std::endl;
+}
+
+
+void Server::privmsg(std::vector<std::string> args, int fd)
+{
+	std::cout << args.size() << std::endl;
+	if (args.size() < 3)
+		return;
+	Client client = this->getClient(fd);
+	std::string myMSG = ":" + client.getFullIdenifer() + " PRIVMSG " + args[1] + " :" + args[2];
+	std::cout << args[1];
+	if (args[1][0] == '#')
+	{
+		std::cout << "Message sending all user in chanels" << std::endl;
+		Channels channel = this->getChannelbyName(args[1]);
+		return channel.sendMessageToAll(myMSG, fd);
+	}
 }

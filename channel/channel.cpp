@@ -1,4 +1,5 @@
 #include "../includes/channel.hpp"
+#include "../includes/server.hpp"
 #include <iostream>
 
 Channels::Channels(Client &client, std::string channelName): _name(channelName)
@@ -63,17 +64,33 @@ std::string Channels::getChannelClients()
 	std::string clients;
 	for (size_t j = 0; j < this->_admins.size(); j++)
 	{
-		if (j == this->_admins.size() - 1)
+		if (j == this->_admins.size())
 			clients += "@" + this->_admins[j].getNick();
 		else
 			clients += "@" + this->_admins[j].getNick() + " ";
 	}
 	for (size_t i = 0; i < this->_clients.size(); i++)
 	{
-		if (i == this->_clients.size() - 1)
+		if (i == this->_clients.size())
 			clients += this->_clients[i].getNick();
 		else
 			clients += this->_clients[i].getNick() + " ";
 	}
 	return clients;
+}
+
+
+void Channels::sendMessageToAll(std::string message, int excludeFd)
+{
+	for(size_t i = 0; i < this->_clients.size(); i++)
+	{
+		if (excludeFd != this->_clients[i].getFd())
+			sendMessage(this->_clients[i].getFd(), message);
+	}
+	for(size_t i = 0; i < this->_admins.size(); i++)
+	{
+		if (excludeFd != this->_admins[i].getFd())
+			sendMessage(this->_admins[i].getFd(), message);
+	}
+	std::cout << "after send to all" << std::endl;
 }

@@ -23,6 +23,7 @@ static int isPasswordValid(std::string password)
 	return 0;
 }
 
+int Server::command_in_command = -1;
 bool Server::_signal = false;
 void Server::signalHandler(int signum)
 {
@@ -80,4 +81,14 @@ int Server::getClientIndex(int fd)
 			return i;
 	}
 	throw std::runtime_error("Client couldn't found");
+}
+
+Channels Server::getChannelbyName(std::string channelName)
+{
+	for (size_t i = 0; i < this->_channels.size(); i++)
+	{
+		if (this->_channels[i].getChannelName() == channelName)
+			return this->_channels[i];
+	}
+	throw std::runtime_error("Channel couldn't find");
 }

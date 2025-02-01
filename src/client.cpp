@@ -69,6 +69,7 @@ void Client::setNick(std::string const nick)
 	this->_nick = nick;
 }
 
+
 void Client::setRealName(std::string const realName)
 {
 	this->_realName = realName;

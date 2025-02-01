@@ -30,4 +30,9 @@ void Server::handleJoin(Client &client, Channels &channel)
     sendMessage(client.getFd(), topicMsg);
     sendMessage(client.getFd(), namesMsg);
     sendMessage(client.getFd(), endNamesMsg);
+    std::string broadcastmsg = ":" + client.getNick() + " " + "JOIN " + channel.getChannelName();
+    std::cout << "pre send to all\n" << broadcastmsg << std::endl;
+    channel.sendMessageToAll(broadcastmsg, client.getFd());
+
+    // for (size_t i = 0; i <)
 }

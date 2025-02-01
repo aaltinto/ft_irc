@@ -26,6 +26,7 @@ class Channels
 		void setChannelName(std::string channelName);
 
 		std::string getChannelClients();
+		void sendMessageToAll(std::string message, int excludeFd = 0);
 		
 		std::string getTopicName();
 		void setTopicName(std::string topicName);

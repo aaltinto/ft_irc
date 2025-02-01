@@ -25,18 +25,24 @@ void Server::startServer()
 	closeFds();
 }
 
-std::vector<std::string> commandSlicer(char *buff)
+std::vector<std::string> commandSlicer(char *buff, int start)
 {
 	std::string strBuff(buff);
 	std::vector<std::string> splittedCommands;
 
-	size_t j = 0;
-	for (size_t i = 0; i < strBuff.size(); i++)
+	size_t j = start;
+	for (size_t i = start; i < strBuff.size(); i++)
 	{
-		if (strBuff[i] == 32)
+		if (strBuff[i] == 32 || strBuff[i] == 10)
 		{
 			splittedCommands.push_back(strBuff.substr(j, i - j));
 			j = i + 1;
+		}
+		if (strBuff[i] == 13 && i + 1 < strBuff.size() && strBuff[i + 1])
+		{
+			splittedCommands.push_back(strBuff.substr(j, i - j));
+			Server::command_in_command = i + 2;
+			return splittedCommands;
 		}
 	}
 	splittedCommands.push_back(strBuff.substr(j, strBuff.size() -j-1));
@@ -62,10 +68,12 @@ int detectCommands(std::vector<std::string> commands)
 	{
 		std::cout << "Command["<< i << "]: " << commands[i] << std::endl;
 	}
-	std::string list[] = {"join", "nick", "user", "topic", "quit"};
-	for (size_t i = 0; i < list->size() - 1; i++)
+	std::string list[] = {"join", "nick", "user", "privmsg", "topic", "quit"};
+	std::string lowercommand = to_lower(commands[0]);
+	size_t list_size = sizeof(list) / sizeof(list[0]);
+	for (size_t i = 0; i < list_size; i++)
 	{
-		if (to_lower(commands[0]) == list[i])
+		if (lowercommand == list[i])
 		{
 			return i;
 		}
@@ -102,23 +110,41 @@ void Server::recieveNewData(int fd)
 	else
 	{
 		buff[bytes] = '\0';
-		std::vector<std::string> commands = commandSlicer(buff);
-		switch (detectCommands(commands))
+		std::vector<std::string> commands = commandSlicer(buff, 0);
+		int max = 1;
+		std::vector<std::vector<std::string> > commando;
+		commando.push_back(commands);
+		for (int i = 0; i < max; i++)
 		{
-			case 0:
-				std::cout << "-join-\n"; 
-				this->join(commands, fd);
-				break;
-			case 1:
-				std::cout << "-nick-\n"; 
-				this->nick(commands, fd);
-				break;
-			case 2:
-				std::cout << "-user-\n"; 
-				this->user(commands, fd);
-				break;
-			default:
-				break;
+			if (Server::command_in_command != -1)
+			{
+				int k = Server::command_in_command;
+				max++;
+				commando.push_back(commandSlicer(buff, Server::command_in_command));
+				if (Server::command_in_command == k)
+					Server::command_in_command = -1;
+			}
+			switch (detectCommands(commando[i]))
+			{
+				case 0:
+					std::cout << "-join-\n"; 
+					this->join(commando[i], fd);
+					break;
+				case 1:
+					std::cout << "-nick-\n"; 
+					this->nick(commando[i], fd);
+					break;
+				case 2:
+					std::cout << "-user-\n"; 
+					this->user(commando[i], fd);
+					break;
+				case 3:
+					std::cout << "-msg-\n"; 
+					this->privmsg(commando[i], fd);
+					break;
+				default:
+					break;
+			}
 		}
 		// std::cout << "Client <" << fd << "> \n Data: \n" << buff << std::endl;
 	}

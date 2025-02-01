@@ -18,6 +18,7 @@ class Server
 		std::vector<Channels> _channels;
 
 	public:
+		static int command_in_command;
 		Server(std::string port, std::string password);
 		Server(Server const &server);
 		Server const &operator=(Server &server);
@@ -28,11 +29,14 @@ class Server
 		void acceptNewClient();
 		void recieveNewData(int fd);
 
+		Channels getChannelbyName(std::string channelName);
+
 
 		void join(std::vector<std::string> args, int fd);
 		void handleJoin(Client &client, Channels &channel);
 		void nick(std::vector<std::string> args, int fd);
 		void user(std::vector<std::string> args, int fd);
+		void privmsg(std::vector<std::string> args, int fd);
 		void topic(std::vector<std::string> args, int fd);
 		void quit(std::vector<std::string> args, int fd);
 
@@ -47,3 +51,7 @@ class Server
 		void closeFds();
 		void clearClient(int fd);
 };
+
+
+std::string to_lower(std::string str);
+void sendMessage(int fd, const std::string message);
