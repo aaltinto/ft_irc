@@ -77,9 +77,33 @@ void Server::privmsg(std::vector<std::string> args, int fd)
 	if (args[1][0] == '#')
 	{
 		std::cout << "Message sending all user in chanels" << std::endl;
-		Channels channel = this->getChannelbyName(args[1]);
-		return channel.sendMessageToAll(myMSG, fd);
+		Channels *channel = this->getChannelbyName(args[1]);
+		if (!channel)
+			return this->noSuchChannel(fd, args[1]);
+		return channel->sendMessageToAll(myMSG, fd);
 	}
 	int client_fd = this->getClientbyNick(args[1]);
+	if (client_fd == -1)
+		return this->noSuchNick(fd, args[1]);
 	sendMessage(client_fd, myMSG);
+}
+
+void Server::topic(std::vector<std::string> args, int fd)
+{
+	if (args.size() < 2)
+		return ;
+	Channels *channel = this->getChannelbyName(args[1]);
+	if (!channel)
+		return this->noSuchChannel(fd, args[1]);
+	if (args.size() == 2)
+		return this->sendTopic(fd, *channel);
+	if (!channel->isAdmin(fd))
+	{
+		std::cout << "Permission denied!" << std::endl;
+		return this->permissionDenied(fd, *channel);
+	}
+	channel->setTopicName(args[2]);
+	Client client = this->getClient(fd);
+	std::string topicUpdate = ":" + client.getFullIdenifer() + " TOPIC " + channel->getChannelName() + " :" + args[2];
+	channel->sendMessageToAll(topicUpdate);
 }

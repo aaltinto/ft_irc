@@ -22,6 +22,8 @@ class Channels
 		
 		void joinChannel(Client &client);
 
+		int isAdmin(int fd);
+
 		std::string getChannelName() const;
 		void setChannelName(std::string channelName);
 

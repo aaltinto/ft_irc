@@ -44,6 +44,11 @@ std::vector<std::string> commandSlicer(char *buff, int start)
 			Server::command_in_command = i + 2;
 			return splittedCommands;
 		}
+		if (strBuff[i] == ':')
+		{
+			splittedCommands.push_back(strBuff.substr(j + 1, strBuff.size() -j));
+			return splittedCommands;
+		}
 	}
 	splittedCommands.push_back(strBuff.substr(j, strBuff.size() -j-1));
 	
@@ -141,6 +146,10 @@ void Server::recieveNewData(int fd)
 				case 3:
 					std::cout << "-msg-\n"; 
 					this->privmsg(commando[i], fd);
+					break;
+				case 4:
+					std::cout << "-topic-\n"; 
+					this->topic(commando[i], fd);
 					break;
 				default:
 					break;

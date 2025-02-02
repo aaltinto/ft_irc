@@ -8,6 +8,7 @@ SRC = src/main.cpp \
 		src/server_build.cpp \
 		src/server.cpp \
 		src/client.cpp \
+		errors/server_errors.cpp \
 		channel/channel.cpp \
 		channel/channel_operations.cpp \
 		communication/send_message.cpp \

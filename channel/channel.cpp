@@ -94,3 +94,13 @@ void Channels::sendMessageToAll(std::string message, int excludeFd)
 	}
 	std::cout << "after send to all" << std::endl;
 }
+
+int Channels::isAdmin(int fd)
+{
+	for (size_t i = 0; i < this->_admins.size(); i++)
+	{
+		if (fd == this->_admins[i].getFd())
+			return 1;
+	}
+	return 0;
+}

@@ -29,9 +29,16 @@ class Server
 		void acceptNewClient();
 		void recieveNewData(int fd);
 
-		Channels getChannelbyName(std::string channelName);
+		Channels *getChannelbyName(std::string channelName);
 		int getClientbyNick(std::string nickname);
 
+		//messages
+		void sendTopic(int fd, Channels channel);
+
+		//errros
+		void noSuchChannel(int fd, std::string channelName);
+		void noSuchNick(int fd, std::string channelName);
+		void permissionDenied(int fd, Channels channel);
 
 		void join(std::vector<std::string> args, int fd);
 		void handleJoin(Client &client, Channels &channel);
