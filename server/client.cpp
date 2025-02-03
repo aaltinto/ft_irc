@@ -79,3 +79,25 @@ void Client::setUsername(std::string const username)
 {
 	this->_username = username;
 }
+
+void Client::addChannel(std::string const channel)
+{
+	this->_joinedChannels.push_back(channel);
+}
+
+void Client::removeChannel(std::string const channel)
+{
+	for (size_t i = 0; i < this->_joinedChannels.size(); i++)
+	{
+		if (this->_joinedChannels[i] == channel)
+		{
+			this->_joinedChannels.erase(this->_joinedChannels.begin() + i);
+			return;
+		}
+	}
+}
+
+std::vector<std::string> Client::getJoinedChannels() const
+{
+	return this->_joinedChannels;
+}

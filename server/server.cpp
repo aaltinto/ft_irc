@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <cstdlib>
 #include <iostream>
+#include <unistd.h>
 
 static int isPortValid(std::string port)
 {
@@ -113,4 +114,29 @@ int Server::getClientbyNick(std::string nickname)
 			return this->_clients[i].getFd();
 	}
 	return -1;
+}
+
+void Server::clearClient(int fd, std::string quitMsg)
+{
+	int index = this->getClientIndex(fd);
+	if (index == -1)
+		throw std::runtime_error("Client not found");
+	std::string quitMessage = ":" + this->_clients[index].getFullIdenifer() + " QUIT :" + quitMsg;
+	std::vector<std::string> joinedChannels = this->_clients[index].getJoinedChannels();
+	for (size_t i = 0; i < joinedChannels.size(); i++)
+	{
+		int j = this->getChannelIndex(joinedChannels[i]);
+		this->_channels[j].partChannel(this->_clients[index]);
+		this->_channels[j].sendMessageToAll(quitMessage);
+	}
+	this->_clients.erase(this->_clients.begin() + index);
+	for (size_t i = 0; i < this->_fds.size(); i++)
+	{
+		if (fd == this->_fds[i].fd)
+		{
+			this->_fds.erase(this->_fds.begin() + i);
+			break;
+		}
+	}
+	close(fd);
 }

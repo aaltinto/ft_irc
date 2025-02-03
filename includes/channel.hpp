@@ -21,6 +21,7 @@ class Channels
 		~Channels();
 		
 		void joinChannel(Client &client);
+		void partChannel(Client &client);
 
 		int isAdmin(int fd);
 

@@ -50,6 +50,19 @@ void Channels::joinChannel(Client &client)
 	std::cout << "Client " << client.getFd() << " joined " << this->getChannelName() <<std::endl;
 }
 
+void Channels::partChannel(Client &client)
+{
+	for (size_t i = 0; i < this->_clients.size(); i++)
+	{
+		if (client.getFd() == this->_clients[i].getFd())
+		{
+			this->_clients.erase(this->_clients.begin() + i);
+			std::cout << "Client " << client.getFd() << " left " << this->getChannelName() <<std::endl;
+			return;
+		}
+	}
+}
+
 std::string Channels::getChannelName() const
 {
 	return this->_name;

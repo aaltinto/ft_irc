@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 class Client
 {
@@ -10,6 +11,7 @@ class Client
 		std::string _username;
 		std::string _realName;
 		std::string _ipAddr;
+		std::vector<std::string> _joinedChannels;
 	public:
 		Client();
 		Client(Client const &client);
@@ -22,7 +24,10 @@ class Client
 		std::string getIpAdd() const;
 		std::string getUsername() const;
 		std::string getFullIdenifer() const;
+		std::vector<std::string> getJoinedChannels() const;
 
+		void addChannel(std::string const channel);
+		void removeChannel(std::string const channel);
 		void setFd(int const fd);
 		void setIpAddr(std::string const ipAddr);
 		void setNick(std::string const nick);

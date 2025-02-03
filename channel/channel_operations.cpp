@@ -11,6 +11,8 @@ void Server::addChannel(std::string channelName, Client client)
 	std::cout << "Client " << client.getFd() << " joined " << channel.getChannelName() << std::endl;
 }
 
+// irc numeric replies
+// https://gist.github.com/proxypoke/2264878
 void Server::join(std::vector<std::string> args, int fd)
 {
 	if (args.size() <= 1)
@@ -29,12 +31,10 @@ void Server::join(std::vector<std::string> args, int fd)
 	{
 		channel->joinChannel(*client);
 		this->handleJoin(*client, *channel);
+		client->addChannel(args[1]);
 		return;
 	}
 	this->addChannel(args[1], *client);
-	// irc numeric replies
-	// https://gist.github.com/proxypoke/2264878
-
 }
 
 void Server::nick(std::vector<std::string> args, int fd)
@@ -100,4 +100,31 @@ void Server::topic(std::vector<std::string> args, int fd)
 	Client *client = this->getClient(fd);
 	std::string topicUpdate = ":" + client->getFullIdenifer() + " TOPIC " + channel->getChannelName() + " :" + args[2];
 	channel->sendMessageToAll(topicUpdate);
+}
+
+void Server::part(std::vector<std::string> args, int fd)
+{
+	if (args.size() < 2)
+		throw std::runtime_error("Array out of bounds");
+	Channels *channel = this->getChannelbyName(args[1]);
+	if (!channel)
+		return this->noSuchChannel(fd, args[1]);
+	Client *client = this->getClient(fd);
+	if (!client)
+		throw std::runtime_error("Client not found");
+	channel->partChannel(*client);
+	std::string partMessage;
+	if (args.size() == 3)
+		partMessage = ":" + client->getFullIdenifer() + " PART " + channel->getChannelName() + " :" + args[2];
+	channel->sendMessageToAll(partMessage);
+	client->removeChannel(args[1]);
+}
+
+
+
+void Server::quit(std::vector<std::string> args, int fd)
+{
+	if (args.size() < 2)
+		throw std::runtime_error("Array out of bounds");
+	this->clearClient(fd, args[1]);
 }

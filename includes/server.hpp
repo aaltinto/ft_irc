@@ -45,6 +45,7 @@ class Server
 		void user(std::vector<std::string> args, int fd);
 		void privmsg(std::vector<std::string> args, int fd);
 		void topic(std::vector<std::string> args, int fd);
+		void part(std::vector<std::string> args, int fd);
 		void quit(std::vector<std::string> args, int fd);
 
 		//getters
@@ -59,7 +60,7 @@ class Server
 		static void signalHandler(int signum);
 
 		void closeFds();
-		void clearClient(int fd);
+		void clearClient(int fd, std::string quitMsg = "Connection lost");
 };
 
 

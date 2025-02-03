@@ -67,25 +67,6 @@ std::string to_lower(std::string str)
 	return ret;
 }
 
-int detectCommands(std::vector<std::string> commands)
-{
-	for (size_t i = 0; i < commands.size(); i++)
-	{
-		std::cout << "Command["<< i << "]: " << commands[i] << std::endl;
-	}
-	std::string list[] = {"join", "nick", "user", "privmsg", "topic", "quit"};
-	std::string lowercommand = to_lower(commands[0]);
-	size_t list_size = sizeof(list) / sizeof(list[0]);
-	for (size_t i = 0; i < list_size; i++)
-	{
-		if (lowercommand == list[i])
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
 void Server::recieveNewData(int fd)
 {
 	char buff[1024];
@@ -94,31 +75,29 @@ void Server::recieveNewData(int fd)
 	if (bytes <= 0)
 	{
 		std::cout << "Client disconnected <" << fd << ">" << std::endl;
-		for (size_t i = 0; i < this->_fds.size(); i++)
-		{
-			if (fd == this->_fds[i].fd)
-			{
-				this->_fds.erase(this->_fds.begin() + i);
-				break;
-			}
-		}
-		for (size_t i = 0; i < this->_clients.size(); i++)
-		{
-			if (fd == this->_clients[i].getFd())
-			{
-				this->_clients.erase(this->_clients.begin() + i);
-				break;
-			}
-		}
-		close(fd);
+		this->clearClient(fd);
 	}
 	else
 	{
 		buff[bytes] = '\0';
-		std::vector<std::string> commands = commandSlicer(buff, 0);
 		int max = 1;
+
+		std::vector<std::string> commands = commandSlicer(buff, 0);
 		std::vector<std::vector<std::string> > commando;
 		commando.push_back(commands);
+
+		std::string list[] = {"join", "nick", "user", "privmsg", "topic", "part", "quit"};
+		int list_size = sizeof(list) / sizeof(list[0]);
+		void (Server::*commandsFuncs[])(std::vector<std::string>, int) = {
+			&Server::join,
+			&Server::nick,
+			&Server::user,
+			&Server::privmsg,
+			&Server::topic,
+			&Server::part,
+			&Server::quit
+		};
+
 		for (int i = 0; i < max; i++)
 		{
 			if (Server::command_in_command != -1)
@@ -129,33 +108,13 @@ void Server::recieveNewData(int fd)
 				if (Server::command_in_command == k)
 					Server::command_in_command = -1;
 			}
-			switch (detectCommands(commando[i]))
-			{
-				case 0:
-					std::cout << "-join-\n"; 
-					this->join(commando[i], fd);
-					break;
-				case 1:
-					std::cout << "-nick-\n"; 
-					this->nick(commando[i], fd);
-					break;
-				case 2:
-					std::cout << "-user-\n"; 
-					this->user(commando[i], fd);
-					break;
-				case 3:
-					std::cout << "-msg-\n"; 
-					this->privmsg(commando[i], fd);
-					break;
-				case 4:
-					std::cout << "-topic-\n"; 
-					this->topic(commando[i], fd);
-					break;
-				default:
-					break;
-			}
+			std::string lowerCommand = to_lower(commando[i][0]);
+			int cmd = 0;
+			while (cmd < list_size && lowerCommand != list[cmd])
+				cmd++;
+			if (cmd <= list_size)
+				(this->*commandsFuncs[cmd])(commando[i], fd);
 		}
-		// std::cout << "Client <" << fd << "> \n Data: \n" << buff << std::endl;
 	}
 }
 
@@ -191,10 +150,7 @@ void Server::serverSocketCreate()
 void Server::closeFds()
 {
 	for (size_t i = 0; i < this->_clients.size(); i++)
-	{
-		std::cout << "Client <" << this->_clients[i].getFd() << "> Disconnected" << std::endl;
-		close(this->_clients[i].getFd());
-	}
+		this->clearClient(this->_clients[i].getFd());
 	if (this->_serverSocketFd != -1)
 	{
 		std::cout << "Server <" << this->_serverSocketFd << "> Disconnected" << std::endl;
