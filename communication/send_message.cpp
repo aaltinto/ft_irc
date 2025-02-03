@@ -23,6 +23,20 @@ void Server::sendTopic(int fd, Channels channel)
     sendMessage(fd, topicMsg);
 }
 
+void Channels::sendMessageToAll(std::string message, int excludeFd)
+{
+	for(size_t i = 0; i < this->_clients.size(); i++)
+	{
+		if (excludeFd != this->_clients[i].getFd())
+			sendMessage(this->_clients[i].getFd(), message);
+	}
+	for(size_t i = 0; i < this->_admins.size(); i++)
+	{
+		if (excludeFd != this->_admins[i].getFd())
+			sendMessage(this->_admins[i].getFd(), message);
+	}
+}
+
 void Server::handleJoin(Client &client, Channels &channel)
 {
     std::string joinMsg = ":" + client.getUsername() + " JOIN " + channel.getChannelName();
@@ -38,8 +52,5 @@ void Server::handleJoin(Client &client, Channels &channel)
     sendMessage(client.getFd(), namesMsg);
     sendMessage(client.getFd(), endNamesMsg);
     std::string broadcastmsg = ":" + client.getNick() + " " + "JOIN " + channel.getChannelName();
-    std::cout << "pre send to all\n" << broadcastmsg << std::endl;
     channel.sendMessageToAll(broadcastmsg, client.getFd());
-
-    // for (size_t i = 0; i <)
 }

@@ -7,7 +7,7 @@ void Server::addChannel(std::string channelName, Client &client)
 {
 	Channels channel(client, channelName);
 	this->_channels.push_back(channel);
-	std::cout << "Client joined " << channel.getChannelName() << std::endl;
+	std::cout << "Client " << client.getFd() << " joined " << channel.getChannelName() << std::endl;
 }
 
 void Server::join(std::vector<std::string> args, int fd)
@@ -33,7 +33,6 @@ void Server::join(std::vector<std::string> args, int fd)
 			return;
 		}
 	}
-	std::cout << "addChannel\n";
 	this->addChannel(channelName, this->getClient(fd));
 	this->handleJoin(this->getClient(fd), this->_channels[this->getChannelIndex(channelName)]);
 	// irc numeric replies

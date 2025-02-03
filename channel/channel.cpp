@@ -79,22 +79,6 @@ std::string Channels::getChannelClients()
 	return clients;
 }
 
-
-void Channels::sendMessageToAll(std::string message, int excludeFd)
-{
-	for(size_t i = 0; i < this->_clients.size(); i++)
-	{
-		if (excludeFd != this->_clients[i].getFd())
-			sendMessage(this->_clients[i].getFd(), message);
-	}
-	for(size_t i = 0; i < this->_admins.size(); i++)
-	{
-		if (excludeFd != this->_admins[i].getFd())
-			sendMessage(this->_admins[i].getFd(), message);
-	}
-	std::cout << "after send to all" << std::endl;
-}
-
 int Channels::isAdmin(int fd)
 {
 	for (size_t i = 0; i < this->_admins.size(); i++)
