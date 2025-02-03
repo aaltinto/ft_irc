@@ -29,8 +29,6 @@ class Server
 		void acceptNewClient();
 		void recieveNewData(int fd);
 
-		Channels *getChannelbyName(std::string channelName);
-		int getClientbyNick(std::string nickname);
 
 		//messages
 		void sendTopic(int fd, Channels channel);
@@ -40,19 +38,23 @@ class Server
 		void noSuchNick(int fd, std::string channelName);
 		void permissionDenied(int fd, Channels channel);
 
+		//commands
 		void join(std::vector<std::string> args, int fd);
-		void handleJoin(Client &client, Channels &channel);
+		void handleJoin(Client client, Channels channel);
 		void nick(std::vector<std::string> args, int fd);
 		void user(std::vector<std::string> args, int fd);
 		void privmsg(std::vector<std::string> args, int fd);
 		void topic(std::vector<std::string> args, int fd);
 		void quit(std::vector<std::string> args, int fd);
 
+		//getters
+		Channels *getChannelbyName(std::string channelName);
 		int getChannelIndex(std::string channelName);
-		Client &getClient(int fd);
+		Client *getClient(int fd);
+		int getClientbyNick(std::string nickname);
 		int getClientIndex(int fd);
 
-		void addChannel(std::string channelName, Client &client);
+		void addChannel(std::string channelName, Client client);
 
 		static void signalHandler(int signum);
 

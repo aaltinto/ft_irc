@@ -4,10 +4,10 @@ CC = c++
 
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = src/main.cpp \
-		src/server_build.cpp \
-		src/server.cpp \
-		src/client.cpp \
+SRC = server/main.cpp \
+		server/server_build.cpp \
+		server/server.cpp \
+		server/client.cpp \
 		errors/server_errors.cpp \
 		channel/channel.cpp \
 		channel/channel_operations.cpp \

@@ -14,12 +14,12 @@ void sendMessage(int fd, const std::string message)
 
 void Server::sendTopic(int fd, Channels channel)
 {
-    Client client = this->getClient(fd);
+    Client *client = this->getClient(fd);
     std::string topicMsg;
     if (channel.getTopicName().empty())
-        topicMsg = ":yourserver 331 " + client.getUsername() + " " + channel.getChannelName() + " :No topic is set";
+        topicMsg = ":yourserver 331 " + client->getUsername() + " " + channel.getChannelName() + " :No topic is set";
     else
-        topicMsg = ":yourserver 332 " + client.getUsername() + " " + channel.getChannelName() + " :" + channel.getTopicName();
+        topicMsg = ":yourserver 332 " + client->getUsername() + " " + channel.getChannelName() + " :" + channel.getTopicName();
     sendMessage(fd, topicMsg);
 }
 
@@ -37,7 +37,7 @@ void Channels::sendMessageToAll(std::string message, int excludeFd)
 	}
 }
 
-void Server::handleJoin(Client &client, Channels &channel)
+void Server::handleJoin(Client client, Channels channel)
 {
     std::string joinMsg = ":" + client.getUsername() + " JOIN " + channel.getChannelName();
     std::cout << joinMsg << std::endl;

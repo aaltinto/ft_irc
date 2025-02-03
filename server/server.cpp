@@ -32,6 +32,7 @@ void Server::signalHandler(int signum)
 }
 
 Server::Server(std::string port, std::string password){
+	
 	int tmpPort = isPortValid(port);
 	this->_port = tmpPort;
 	isPasswordValid(password);
@@ -49,7 +50,18 @@ Server::Server(Server const &server)
 
 Server const &Server::operator=(Server &server)
 {
-	(void)server;
+	if (this == &server)
+    	return *this;
+
+	_password = server._password;
+	_port = server._port;
+	_serverSocketFd = server._serverSocketFd;
+	_signal = server._signal;
+
+	_clients = server._clients;
+	_fds = server._fds;
+	_channels = server._channels;
+
 	return *this;
 }
 
@@ -63,14 +75,14 @@ int Server::getChannelIndex(std::string channelName)
 	return -1;
 }
 
-Client &Server::getClient(int fd)
+Client *Server::getClient(int fd)
 {
 	for (size_t i = 0; i < this->_clients.size(); i++)
 	{
 		if (this->_clients[i].getFd() == fd)
-			return this->_clients[i];
+			return &this->_clients[i];
 	}
-	throw std::runtime_error("Client couldn't found");
+	return NULL;
 }
 
 int Server::getClientIndex(int fd)

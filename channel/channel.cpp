@@ -26,7 +26,18 @@ Channels::Channels(Channels const &channels)
 
 Channels const &Channels::operator=(Channels const &channels)
 {
-	(void)channels;
+	if (this == &channels)
+		return *this;
+	
+	this->_name = channels._name;
+	this->_topic = channels._topic;
+	this->_created_at = channels._created_at;
+	this->_create_time = channels._create_time;
+	this->_topic_name = channels._topic_name;
+
+	this->_clients = channels._clients;
+	this->_admins = channels._admins;
+
 	return *this;
 }
 
