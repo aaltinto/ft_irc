@@ -128,3 +128,32 @@ void Server::quit(std::vector<std::string> args, int fd)
 		throw std::runtime_error("Array out of bounds");
 	this->clearClient(fd, args[1]);
 }
+
+void Server::kick(std::vector<std::string> args, int fd)
+{
+	if (args.size() < 3)
+		throw std::runtime_error("Array out of bounds");
+	
+	Channels *channel = this->getChannelbyName(args[1]);
+	if (!channel)
+		return this->noSuchChannel(fd, args[1]);
+	if (!channel->isAdmin(fd))
+	{
+		std::cout << "Permission denied!" << std::endl;
+		return this->permissionDenied(fd, *channel);
+	}
+	int client_fd = channel->getClientByNick(args[2]);
+	if (client_fd == -1)
+		return this->noSuchNick(fd, args[2]);
+	Client *client = this->getClient(client_fd);
+	Client *kicker = this->getClient(fd);
+	std::string kickMsg = ":" + kicker->getFullIdenifer() +
+						" KICK " + channel->getChannelName() +
+						" " + args[2];
+	if (args.size() == 4)
+		kickMsg += " :" + args[3];
+
+	channel->sendMessageToAll(kickMsg);
+	client->removeChannel(args[1]);
+	channel->partChannel(*client);
+}

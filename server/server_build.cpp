@@ -86,7 +86,7 @@ void Server::recieveNewData(int fd)
 		std::vector<std::vector<std::string> > commando;
 		commando.push_back(commands);
 
-		std::string list[] = {"join", "nick", "user", "privmsg", "topic", "part", "quit"};
+		std::string list[] = {"join", "nick", "user", "privmsg", "topic", "kick", "part", "quit"};
 		int list_size = sizeof(list) / sizeof(list[0]);
 		void (Server::*commandsFuncs[])(std::vector<std::string>, int) = {
 			&Server::join,
@@ -94,6 +94,7 @@ void Server::recieveNewData(int fd)
 			&Server::user,
 			&Server::privmsg,
 			&Server::topic,
+			&Server::kick,
 			&Server::part,
 			&Server::quit
 		};
@@ -108,11 +109,13 @@ void Server::recieveNewData(int fd)
 				if (Server::command_in_command == k)
 					Server::command_in_command = -1;
 			}
+			if (commando[i].size() == 0)
+				continue;
 			std::string lowerCommand = to_lower(commando[i][0]);
 			int cmd = 0;
 			while (cmd < list_size && lowerCommand != list[cmd])
 				cmd++;
-			if (cmd <= list_size)
+			if (cmd < list_size)
 				(this->*commandsFuncs[cmd])(commando[i], fd);
 		}
 	}

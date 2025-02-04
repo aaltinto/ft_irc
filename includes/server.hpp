@@ -47,6 +47,7 @@ class Server
 		void topic(std::vector<std::string> args, int fd);
 		void part(std::vector<std::string> args, int fd);
 		void quit(std::vector<std::string> args, int fd);
+		void kick(std::vector<std::string> args, int fd);
 
 		//getters
 		Channels *getChannelbyName(std::string channelName);

@@ -30,6 +30,8 @@ class Channels
 
 		std::string getChannelClients();
 		void sendMessageToAll(std::string message, int excludeFd = 0);
+
+		int getClientByNick(std::string nickname);
 		
 		std::string getTopicName();
 		void setTopicName(std::string topicName);

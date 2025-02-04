@@ -61,6 +61,15 @@ void Channels::partChannel(Client &client)
 			return;
 		}
 	}
+	for (size_t i = 0; i < this->_admins.size(); i++)
+	{
+		if (client.getFd() == this->_admins[i].getFd())
+		{
+			this->_admins.erase(this->_admins.begin() + i);
+			std::cout << "Client " << client.getFd() << " left " << this->getChannelName() <<std::endl;
+			return;
+		}
+	}
 }
 
 std::string Channels::getChannelName() const
@@ -101,6 +110,21 @@ std::string Channels::getChannelClients()
 			clients += this->_clients[i].getNick() + " ";
 	}
 	return clients;
+}
+
+int Channels::getClientByNick(std::string nickname)
+{
+	for (size_t i = 0; i < this->_clients.size(); i++)
+	{
+		if (nickname == this->_clients[i].getNick())
+			return this->_clients[i].getFd();
+	}
+	for (size_t i = 0; i < this->_admins.size(); i++)
+	{
+		if (nickname == this->_admins[i].getNick())
+			return this->_admins[i].getFd();
+	}
+	return -1;
 }
 
 int Channels::isAdmin(int fd)
