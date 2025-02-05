@@ -5,6 +5,8 @@
 
 void Server::addChannel(std::string channelName, Client client)
 {
+	if (client.isAuth() == false)
+		return;
 	Channels channel(client, channelName);
 	this->_channels.push_back(channel);
 	this->handleJoin(client, channel);
@@ -25,7 +27,15 @@ void Server::join(std::vector<std::string> args, int fd)
 
 	Client *client = this->getClient(fd);
 	if (!client)
-		throw std::runtime_error("Client not found");
+	{
+		std::cout << "Client not found!" << std::endl;
+		return;
+	}
+	if (client->isAuth() == false)
+	{
+		std::cout << "Client not authed!" << std::endl;
+		return;
+	}
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (channel != NULL)
 	{
@@ -43,7 +53,9 @@ void Server::nick(std::vector<std::string> args, int fd)
 		throw std::runtime_error("Array out of bounds");
 	int i = this->getClientIndex(fd);
 	if (i == -1)
-		throw std::runtime_error("Client not found");
+		return;
+	if (this->_clients[i].isAuth() == false)
+		return;
 	this->_clients[i].setNick(args[1]);
 }
 
@@ -54,7 +66,9 @@ void Server::user(std::vector<std::string> args, int fd)
 
 	int i = this->getClientIndex(fd);
 	if (i == -1)
-		throw std::runtime_error("Client not found");
+		return;
+	if (this->_clients[i].isAuth() == false)
+		return;
 	this->_clients[i].setUsername(args[1]);
 	this->_clients[i].setRealName(args[4]);
 }
@@ -66,7 +80,9 @@ void Server::privmsg(std::vector<std::string> args, int fd)
 		throw std::runtime_error("Array out of bounds");
 	Client *client = this->getClient(fd);
 	if (!client)
-		throw std::runtime_error("Client not found");
+		return;
+	if (client->isAuth() == false)
+		return;
 	std::string myMSG = ":" + client->getFullIdenifer() + " PRIVMSG " + args[1] + " :" + args[2];
 
 	if (args[1][0] == '#')
@@ -86,6 +102,11 @@ void Server::topic(std::vector<std::string> args, int fd)
 {
 	if (args.size() < 2)
 		throw std::runtime_error("Array out of bounds");
+	Client *client = this->getClient(fd);
+	if (!client)
+		return;
+	if (client->isAuth() == false)
+		return;
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (!channel)
 		return this->noSuchChannel(fd, args[1]);
@@ -97,7 +118,6 @@ void Server::topic(std::vector<std::string> args, int fd)
 		return this->permissionDenied(fd, *channel);
 	}
 	channel->setTopicName(args[2]);
-	Client *client = this->getClient(fd);
 	std::string topicUpdate = ":" + client->getFullIdenifer() + " TOPIC " + channel->getChannelName() + " :" + args[2];
 	channel->sendMessageToAll(topicUpdate);
 }
@@ -106,12 +126,14 @@ void Server::part(std::vector<std::string> args, int fd)
 {
 	if (args.size() < 2)
 		throw std::runtime_error("Array out of bounds");
+	Client *client = this->getClient(fd);
+	if (!client)
+		return;
+	if (client->isAuth() == false)
+		return;
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (!channel)
 		return this->noSuchChannel(fd, args[1]);
-	Client *client = this->getClient(fd);
-	if (!client)
-		throw std::runtime_error("Client not found");
 	channel->partChannel(*client);
 	std::string partMessage;
 	if (args.size() == 3)
@@ -126,6 +148,9 @@ void Server::quit(std::vector<std::string> args, int fd)
 {
 	if (args.size() < 2)
 		throw std::runtime_error("Array out of bounds");
+	int i = this->getClientIndex(fd);
+	if (i == -1)
+		return;
 	this->clearClient(fd, args[1]);
 }
 
@@ -134,6 +159,11 @@ void Server::kick(std::vector<std::string> args, int fd)
 	if (args.size() < 3)
 		throw std::runtime_error("Array out of bounds");
 	
+	Client *kicker = this->getClient(fd);
+	if (!kicker)
+		return;
+	if (kicker->isAuth() == false)
+		return;
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (!channel)
 		return this->noSuchChannel(fd, args[1]);
@@ -146,7 +176,6 @@ void Server::kick(std::vector<std::string> args, int fd)
 	if (client_fd == -1)
 		return this->noSuchNick(fd, args[2]);
 	Client *client = this->getClient(client_fd);
-	Client *kicker = this->getClient(fd);
 	std::string kickMsg = ":" + kicker->getFullIdenifer() +
 						" KICK " + channel->getChannelName() +
 						" " + args[2];
@@ -156,4 +185,24 @@ void Server::kick(std::vector<std::string> args, int fd)
 	channel->sendMessageToAll(kickMsg);
 	client->removeChannel(args[1]);
 	channel->partChannel(*client);
+}
+
+void Server::pass(std::vector<std::string> args, int fd)
+{
+	int i = this->getClientIndex(fd);
+	if (i == -1)
+		return;
+	if (args.size() < 2)
+	{
+		std::string msg = ":server 461 " + this->_clients[i].getFullIdenifer() + " PASS :Not enough paramaters!";
+		sendMessage(fd, msg);
+	}
+	if (args[1] != this->_password)
+	{
+		std::cout << "Password incorrect!" << std::endl;
+		std::string msg = ":server 464 " + this->_clients[i].getFullIdenifer() + " PASS :Password incorrect!";
+		sendMessage(fd, msg);
+		return;
+	}
+	this->_clients[i].auth();
 }

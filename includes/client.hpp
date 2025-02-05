@@ -11,6 +11,7 @@ class Client
 		std::string _username;
 		std::string _realName;
 		std::string _ipAddr;
+		bool _isAuth;
 		std::vector<std::string> _joinedChannels;
 	public:
 		Client();
@@ -19,6 +20,8 @@ class Client
 		~Client();
 
 		int getFd() const;
+		bool isAuth() const;
+		void auth(bool value = true);
 		std::string getNick() const;
 		std::string getRealName() const;
 		std::string getIpAdd() const;

@@ -67,6 +67,42 @@ std::string to_lower(std::string str)
 	return ret;
 }
 
+void exec_command(int fd, std::vector<std::string> commando)
+{
+	std::string list[] = {
+		"join",
+		// "pass",
+		"nick",
+		"user",
+		"privmsg",
+		"topic",
+		"kick",
+		"part",
+		"quit"
+		};
+	int list_size = sizeof(list) / sizeof(list[0]);
+	void (Server::*commandsFuncs[])(std::vector<std::string>, int) = {
+		&Server::join,
+		// &Server::pass,
+		&Server::nick,
+		&Server::user,
+		&Server::privmsg,
+		&Server::topic,
+		&Server::kick,
+		&Server::part,
+		&Server::quit
+	};
+
+	for (size_t j = 0; j < commando.size(); j++)
+		std::cout << "command[" << j << "]: " << commando[j] << std::endl;
+	std::string lowerCommand = to_lower(commando[0]);
+	int cmd = 0;
+	while (cmd < list_size && lowerCommand != list[cmd])
+		cmd++;
+	if (cmd < list_size)
+		(this->*commandsFuncs[cmd])(commando, fd);
+}
+
 void Server::recieveNewData(int fd)
 {
 	char buff[1024];
@@ -86,19 +122,6 @@ void Server::recieveNewData(int fd)
 		std::vector<std::vector<std::string> > commando;
 		commando.push_back(commands);
 
-		std::string list[] = {"join", "nick", "user", "privmsg", "topic", "kick", "part", "quit"};
-		int list_size = sizeof(list) / sizeof(list[0]);
-		void (Server::*commandsFuncs[])(std::vector<std::string>, int) = {
-			&Server::join,
-			&Server::nick,
-			&Server::user,
-			&Server::privmsg,
-			&Server::topic,
-			&Server::kick,
-			&Server::part,
-			&Server::quit
-		};
-
 		for (int i = 0; i < max; i++)
 		{
 			if (Server::command_in_command != -1)
@@ -109,14 +132,7 @@ void Server::recieveNewData(int fd)
 				if (Server::command_in_command == k)
 					Server::command_in_command = -1;
 			}
-			if (commando[i].size() == 0)
-				continue;
-			std::string lowerCommand = to_lower(commando[i][0]);
-			int cmd = 0;
-			while (cmd < list_size && lowerCommand != list[cmd])
-				cmd++;
-			if (cmd < list_size)
-				(this->*commandsFuncs[cmd])(commando[i], fd);
+
 		}
 	}
 }

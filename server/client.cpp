@@ -1,6 +1,8 @@
 #include "../includes/client.hpp"
 
-Client::Client(){}
+Client::Client(){
+	this->_isAuth = true;
+}
 
 Client::~Client(){}
 
@@ -69,6 +71,15 @@ void Client::setNick(std::string const nick)
 	this->_nick = nick;
 }
 
+bool Client::isAuth() const
+{
+	return this->_isAuth;
+}
+
+void Client::auth(bool value)
+{
+	this->_isAuth = value;
+}
 
 void Client::setRealName(std::string const realName)
 {

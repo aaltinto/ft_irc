@@ -93,7 +93,7 @@ int Server::getClientIndex(int fd)
 		if (this->_clients[i].getFd() == fd)
 			return i;
 	}
-	throw std::runtime_error("Client couldn't found");
+	return -1;
 }
 
 Channels* Server::getChannelbyName(std::string channelName)
