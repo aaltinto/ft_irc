@@ -81,7 +81,10 @@ Client *Server::getClient(int fd)
 	for (size_t i = 0; i < this->_clients.size(); i++)
 	{
 		if (this->_clients[i].getFd() == fd)
+		{
+
 			return &this->_clients[i];
+		}
 	}
 	return NULL;
 }

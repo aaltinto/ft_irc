@@ -50,6 +50,8 @@ class Server
 		void kick(std::vector<std::string> args, int fd);
 		void pass(std::vector<std::string> args, int fd);
 
+
+		void exec_command(int fd, std::vector<std::string> commando);
 		//getters
 		Channels *getChannelbyName(std::string channelName);
 		int getChannelIndex(std::string channelName);

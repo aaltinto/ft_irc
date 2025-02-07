@@ -67,11 +67,11 @@ std::string to_lower(std::string str)
 	return ret;
 }
 
-void exec_command(int fd, std::vector<std::string> commando)
+void Server::exec_command(int fd, std::vector<std::string> commando)
 {
 	std::string list[] = {
 		"join",
-		// "pass",
+		"pass",
 		"nick",
 		"user",
 		"privmsg",
@@ -83,7 +83,7 @@ void exec_command(int fd, std::vector<std::string> commando)
 	int list_size = sizeof(list) / sizeof(list[0]);
 	void (Server::*commandsFuncs[])(std::vector<std::string>, int) = {
 		&Server::join,
-		// &Server::pass,
+		&Server::pass,
 		&Server::nick,
 		&Server::user,
 		&Server::privmsg,
@@ -132,7 +132,7 @@ void Server::recieveNewData(int fd)
 				if (Server::command_in_command == k)
 					Server::command_in_command = -1;
 			}
-
+			this->exec_command(fd, commando[i]);
 		}
 	}
 }

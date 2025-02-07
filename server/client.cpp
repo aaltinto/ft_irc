@@ -11,6 +11,7 @@ Client::Client(Client const &client)
 	this->setFd(client.getFd());
 	this->setIpAddr(client.getIpAdd());
 	this->setNick(client.getNick());
+	this->_isAuth = client.isAuth();
 	this->setRealName(client.getRealName());
 	this->setUsername(client.getUsername());
 }
@@ -19,6 +20,7 @@ Client const &Client::operator=(Client const &client)
 {
 	this->setFd(client.getFd());
 	this->setIpAddr(client.getIpAdd());
+	this->_isAuth = client.isAuth();
 	this->setNick(client.getNick());
 	this->setRealName(client.getRealName());
 	this->setUsername(client.getUsername());

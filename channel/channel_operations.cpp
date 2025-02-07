@@ -25,6 +25,7 @@ void Server::join(std::vector<std::string> args, int fd)
 		return;
 	}
 
+	std::cout << "join" << std::endl;
 	Client *client = this->getClient(fd);
 	if (!client)
 	{
@@ -49,18 +50,27 @@ void Server::join(std::vector<std::string> args, int fd)
 
 void Server::nick(std::vector<std::string> args, int fd)
 {
+
+	std::cout << "nick" << std::endl;
 	if (args.size() < 2)
 		throw std::runtime_error("Array out of bounds");
 	int i = this->getClientIndex(fd);
 	if (i == -1)
 		return;
 	if (this->_clients[i].isAuth() == false)
+	{
+		std::cout << "Password required!" << std::endl;
+		std::string msg = ":server 461 " + this->_clients[i].getFullIdenifer() + " PASS :Not enough paramaters!";
+		sendMessage(fd, msg);
+		this->clearClient(fd);
 		return;
+	}
 	this->_clients[i].setNick(args[1]);
 }
 
 void Server::user(std::vector<std::string> args, int fd)
 {
+	std::cout << "user" << std::endl;
 	if (args.size() < 5)
 		throw std::runtime_error("Array out of bounds");
 
@@ -76,13 +86,17 @@ void Server::user(std::vector<std::string> args, int fd)
 
 void Server::privmsg(std::vector<std::string> args, int fd)
 {
+	std::cout << "messgae" << std::endl;
 	if (args.size() < 3)
 		throw std::runtime_error("Array out of bounds");
 	Client *client = this->getClient(fd);
 	if (!client)
 		return;
 	if (client->isAuth() == false)
+	{
+		std::cout << "client is not auth!? \n";
 		return;
+	}
 	std::string myMSG = ":" + client->getFullIdenifer() + " PRIVMSG " + args[1] + " :" + args[2];
 
 	if (args[1][0] == '#')
@@ -100,6 +114,7 @@ void Server::privmsg(std::vector<std::string> args, int fd)
 
 void Server::topic(std::vector<std::string> args, int fd)
 {
+	std::cout << "topic" << std::endl;
 	if (args.size() < 2)
 		throw std::runtime_error("Array out of bounds");
 	Client *client = this->getClient(fd);
@@ -124,6 +139,7 @@ void Server::topic(std::vector<std::string> args, int fd)
 
 void Server::part(std::vector<std::string> args, int fd)
 {
+	std::cout << "part" << std::endl;
 	if (args.size() < 2)
 		throw std::runtime_error("Array out of bounds");
 	Client *client = this->getClient(fd);
@@ -134,18 +150,19 @@ void Server::part(std::vector<std::string> args, int fd)
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (!channel)
 		return this->noSuchChannel(fd, args[1]);
-	channel->partChannel(*client);
 	std::string partMessage;
 	if (args.size() == 3)
 		partMessage = ":" + client->getFullIdenifer() + " PART " + channel->getChannelName() + " :" + args[2];
 	channel->sendMessageToAll(partMessage);
 	client->removeChannel(args[1]);
+	channel->partChannel(*client);
 }
 
 
 
 void Server::quit(std::vector<std::string> args, int fd)
 {
+	std::cout << "quit" << std::endl;
 	if (args.size() < 2)
 		throw std::runtime_error("Array out of bounds");
 	int i = this->getClientIndex(fd);
@@ -156,6 +173,7 @@ void Server::quit(std::vector<std::string> args, int fd)
 
 void Server::kick(std::vector<std::string> args, int fd)
 {
+	std::cout << "kick" << std::endl;
 	if (args.size() < 3)
 		throw std::runtime_error("Array out of bounds");
 	
@@ -189,20 +207,24 @@ void Server::kick(std::vector<std::string> args, int fd)
 
 void Server::pass(std::vector<std::string> args, int fd)
 {
+	std::cout << "pass" << std::endl;
 	int i = this->getClientIndex(fd);
 	if (i == -1)
 		return;
 	if (args.size() < 2)
 	{
+		std::cout << "Password required!" << std::endl;
 		std::string msg = ":server 461 " + this->_clients[i].getFullIdenifer() + " PASS :Not enough paramaters!";
 		sendMessage(fd, msg);
+		return;
 	}
 	if (args[1] != this->_password)
 	{
 		std::cout << "Password incorrect!" << std::endl;
 		std::string msg = ":server 464 " + this->_clients[i].getFullIdenifer() + " PASS :Password incorrect!";
 		sendMessage(fd, msg);
+		this->clearClient(fd);
 		return;
 	}
-	this->_clients[i].auth();
+	this->_clients[i].auth(true);
 }
