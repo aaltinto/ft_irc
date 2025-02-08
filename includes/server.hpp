@@ -51,6 +51,7 @@ class Server
 		void kick(std::vector<std::string> args, int fd);
 		void pass(std::vector<std::string> args, int fd);
 		void invite(std::vector<std::string> args, int fd);
+		void mode(std::vector<std::string> args, int fd);
 
 
 		void exec_command(int fd, std::vector<std::string> commando);

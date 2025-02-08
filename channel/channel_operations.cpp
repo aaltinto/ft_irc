@@ -1,6 +1,7 @@
 #include "../includes/server.hpp"
 #include "../includes/client.hpp"
 #include "../includes/channel.hpp"
+#include "../includes/mode.hpp"
 #include <iostream>
 
 void Server::addChannel(std::string channelName, Client client)
@@ -266,3 +267,89 @@ void Server::invite(std::vector<std::string> args, int fd)
 	std::string inviteMsg = ":" + inviter->getFullIdenifer() + " INVITE " + args[1] + " " + args[2];
 	sendMessage(clientFd, inviteMsg);
 }
+
+// static void printModes(Client client, std::string channel, std::string mode)
+// {
+// 	std::string modeMsg = ":ircserv 324 " + client.getFullIdenifer() + " " + channel + " " + mode;
+// 	sendMessage(client.getFd(), modeMsg);
+// }
+
+// static std::string getFirstArg(std::vector<std::string> &args, int united)
+// {
+// 	std::string flags = "itkol";
+// 	for (size_t i = 0; i < args.size(); i++)
+// 	{
+// 		if (!united)
+// 		{
+// 			if (args[i].length() > 2)
+// 			{
+// 				std::string ret = args[i];
+// 				args[i] = "";
+// 				return ret;
+// 			}
+// 			else if (args[i].length() == 2 && !(args[i][0] == '+' || args[i][0] == '-'))
+// 			{
+// 				std::string ret = args[i];
+// 				args[i] = "";
+// 				return ret;
+// 			}
+// 			else if (args[i].length() == 1)
+// 			{
+// 				for (size_t k = 0; k < flags.length(); k++)
+// 					if (flags[k] == args[i][0])
+// 						return "";
+// 				std::string ret = args[i];
+// 				args[i] = "";
+// 				return ret;
+// 			}
+// 		}
+// 		else
+// 		{
+// 			for (size_t k = 0; k < flags.length(); k++)
+// 			{
+// 				for (size_t j = 0; j < args[i].size(); j++)
+// 				{
+// 					if (flags[k] != args[i][j])
+// 					{
+// 						std::string ret = args[i];
+// 						args[i] = "";
+// 						return ret;
+// 					}
+// 				}
+// 			}
+
+// 		}
+// 	}
+// }
+
+// void Server::mode(std::vector<std::string> args, int fd)
+// {
+// 	if (args.size() < 2)
+// 		throw std::runtime_error("Array out of bounds");
+// 	Client *client = this->getClient(fd);
+// 	if (!client)
+// 		return ;
+// 	Channels *channel = this->getChannelbyName(args[1]);
+// 	if (!channel)
+// 	{
+// 		std::cerr << "No such channel" << std::endl;
+// 		this->noSuchChannel(fd, args[1]);
+// 	}
+// 	if (args.size() == 2)
+// 		printModes(*client, channel->getChannelName(), channel->getMods());
+	
+// 	std::vector<Mode> mods;
+// 	int sign = 1;
+// 	for (size_t i = 1; i < args.size(); i++)
+// 	{
+// 		for (size_t j = 0; i < args[i].length(); j++)
+// 		{
+
+// 			sign = -1 ? args[i][0] == '-' : 1;
+// 			Mode tmpMode(sign, args[i][1], getFirstArg(args, 0));
+// 			mods.push_back(tmpMode);
+// 			continue;
+// 		}
+// 	}
+		
+// }

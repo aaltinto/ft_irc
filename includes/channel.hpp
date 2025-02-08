@@ -11,6 +11,9 @@ class Channels
 		std::string _created_at;
 		std::string _create_time;
 		std::string _topic_name;
+		std::string _password;
+		std::string _mods;
+		std::vector<std::string> _invitedClients;
 		std::vector<Client> _clients;
 		std::vector<Client> _admins;
 		
@@ -37,6 +40,8 @@ class Channels
 		
 		std::string getTopicName();
 		void setTopicName(std::string topicName);
+
+		std::string getMods() const;
 		
 		void setTime();
 		std::string getTime();

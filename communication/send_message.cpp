@@ -1,6 +1,8 @@
 #include "../includes/server.hpp"
 #include <sys/socket.h>
 #include <iostream>
+#include <cerrno>
+#include <cstring>
 
 
 void sendMessage(int fd, const std::string message)
