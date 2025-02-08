@@ -2,12 +2,13 @@
 #include <sys/socket.h>
 #include <iostream>
 
+
 void sendMessage(int fd, const std::string message)
 {
     std::string msg = message + "\r\n";
     if (send(fd, msg.c_str(), msg.length(), 0) < 0)
     {
-        std::cerr << "send() failed!" << std::endl;
+        std::cerr << "send() failed!\nError: " << std::strerror(errno) << std::endl;
         return ;
     }
 }

@@ -23,6 +23,8 @@ class Channels
 		void joinChannel(Client &client);
 		void partChannel(Client &client);
 
+		bool checkClientIsIn(int fd);
+
 		int isAdmin(int fd);
 
 		std::string getChannelName() const;

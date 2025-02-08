@@ -22,6 +22,8 @@ class Client
 		int getFd() const;
 		bool isAuth() const;
 		void auth(bool value = true);
+		bool isJoined(std::string const channel) const;
+
 		std::string getNick() const;
 		std::string getRealName() const;
 		std::string getIpAdd() const;

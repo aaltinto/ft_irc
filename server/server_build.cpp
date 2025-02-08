@@ -76,6 +76,7 @@ void Server::exec_command(int fd, std::vector<std::string> commando)
 		"user",
 		"privmsg",
 		"topic",
+		"invite",
 		"kick",
 		"part",
 		"quit"
@@ -88,6 +89,7 @@ void Server::exec_command(int fd, std::vector<std::string> commando)
 		&Server::user,
 		&Server::privmsg,
 		&Server::topic,
+		&Server::invite,
 		&Server::kick,
 		&Server::part,
 		&Server::quit

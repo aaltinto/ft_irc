@@ -37,7 +37,8 @@ class Server
 		void noSuchChannel(int fd, std::string channelName);
 		void noSuchNick(int fd, std::string channelName);
 		void permissionDenied(int fd, Channels channel);
-
+		void notInThatChannel(int fd, Channels channel);
+		void invalidChannelName(int fd, std::string channelName);
 		//commands
 		void join(std::vector<std::string> args, int fd);
 		void handleJoin(Client client, Channels channel);
@@ -49,6 +50,7 @@ class Server
 		void quit(std::vector<std::string> args, int fd);
 		void kick(std::vector<std::string> args, int fd);
 		void pass(std::vector<std::string> args, int fd);
+		void invite(std::vector<std::string> args, int fd);
 
 
 		void exec_command(int fd, std::vector<std::string> commando);

@@ -83,6 +83,16 @@ void Client::auth(bool value)
 	this->_isAuth = value;
 }
 
+bool Client::isJoined(std::string const channel) const
+{
+	for (size_t i = 0; i < this->_joinedChannels.size(); i++)
+	{
+		if (this->_joinedChannels[i] == channel)
+			return true;
+	}
+	return false;
+}
+
 void Client::setRealName(std::string const realName)
 {
 	this->_realName = realName;

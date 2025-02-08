@@ -22,6 +22,7 @@ void Server::join(std::vector<std::string> args, int fd)
 	if (args[1][0] != '#')
 	{
 		std::cout << "Channel name has to start with '#'" << std::endl;
+		this->invalidChannelName(fd, args[1]);
 		return;
 	}
 
@@ -104,6 +105,8 @@ void Server::privmsg(std::vector<std::string> args, int fd)
 		Channels *channel = this->getChannelbyName(args[1]);
 		if (!channel)
 			return this->noSuchChannel(fd, args[1]);
+		if (channel->checkClientIsIn(fd) == false)
+			return this->notInThatChannel(fd, *channel);
 		return channel->sendMessageToAll(myMSG, fd);
 	}
 	int client_fd = this->getClientbyNick(args[1]);
@@ -227,4 +230,39 @@ void Server::pass(std::vector<std::string> args, int fd)
 		return;
 	}
 	this->_clients[i].auth(true);
+}
+
+void Server::invite(std::vector<std::string> args, int fd)
+{
+	std::cout << "invite" << std::endl;
+	if (args.size() < 3)
+		throw std::runtime_error("Array out of bounds");
+	Client *inviter = this->getClient(fd);
+	if (!inviter)
+		return;
+	if (inviter->isAuth() == false)
+	{
+		std::cout << "Client not authed!" << std::endl;
+		return;
+	}
+	int clientFd = this->getClientbyNick(args[1]);
+	if (clientFd == -1)
+	{
+		std::cout << "No such nick!" << std::endl;
+		return this->noSuchNick(fd, args[1]);
+	}
+	Channels *channel = this->getChannelbyName(args[2]);
+	if (!channel)
+	{
+		std::cout << "No such channel!" << std::endl;
+		return this->noSuchChannel(fd, args[2]);
+	}
+	if (channel->checkClientIsIn(fd) == false)
+	{
+		std::cout << "Not in that channel!" << std::endl;
+		return this->notInThatChannel(fd, *channel);
+	}
+	//store the invitee's fd for check in if the channel invite only
+	std::string inviteMsg = ":" + inviter->getFullIdenifer() + " INVITE " + args[1] + " " + args[2];
+	sendMessage(clientFd, inviteMsg);
 }
