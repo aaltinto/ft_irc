@@ -9,6 +9,8 @@ SRC = server/main.cpp \
 		server/server.cpp \
 		server/client.cpp \
 		errors/server_errors.cpp \
+		channel/mode.cpp \
+		channel/channel_mods.cpp \
 		channel/channel.cpp \
 		channel/channel_operations.cpp \
 		communication/send_message.cpp \

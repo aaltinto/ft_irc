@@ -33,7 +33,7 @@ std::vector<std::string> commandSlicer(char *buff, int start)
 	size_t j = start;
 	for (size_t i = start; i < strBuff.size(); i++)
 	{
-		if (strBuff[i] == 32 || strBuff[i] == 10)
+		if (strBuff[i] == 32)
 		{
 			splittedCommands.push_back(strBuff.substr(j, i - j));
 			j = i + 1;
@@ -79,6 +79,7 @@ void Server::exec_command(int fd, std::vector<std::string> commando)
 		"invite",
 		"kick",
 		"part",
+		"mode",
 		"quit"
 		};
 	int list_size = sizeof(list) / sizeof(list[0]);
@@ -92,6 +93,7 @@ void Server::exec_command(int fd, std::vector<std::string> commando)
 		&Server::invite,
 		&Server::kick,
 		&Server::part,
+		&Server::mode,
 		&Server::quit
 	};
 

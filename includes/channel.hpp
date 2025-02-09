@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "../includes/client.hpp"
+#include "../includes/mode.hpp"
 
 class Channels
 {
@@ -13,6 +14,8 @@ class Channels
 		std::string _topic_name;
 		std::string _password;
 		std::string _mods;
+		bool _inviteOnly;
+		bool _topicProtection;
 		std::vector<std::string> _invitedClients;
 		std::vector<Client> _clients;
 		std::vector<Client> _admins;
@@ -23,26 +26,47 @@ class Channels
 		Channels const &operator=(Channels const &Channels);
 		~Channels();
 		
+		//operations
 		void joinChannel(Client &client);
 		void partChannel(Client &client);
-
-		bool checkClientIsIn(int fd);
-
-		int isAdmin(int fd);
-
-		std::string getChannelName() const;
-		void setChannelName(std::string channelName);
-
-		std::string getChannelClients();
+		void addAdmin(Client &client);
+		void removeAdmin(Client &client);
+		void addInvitedClient(std::string nickname);
+		void removeInvitedClient(std::string nickname);
 		void sendMessageToAll(std::string message, int excludeFd = 0);
 
-		int getClientByNick(std::string nickname);
-		
-		std::string getTopicName();
-		void setTopicName(std::string topicName);
+		//checks
+		bool checkClientIsIn(int fd);
+		bool isTopicProtected();
+		bool isInviteOnly();
+		bool isInvited(std::string nickname);
+		int isAdmin(int fd);
 
+		//getters
+		std::string getPass() const;
+		std::string getChannelName() const;
+		std::string getChannelClients();
+		std::string getTopicName();
+		int getClientByNick(std::string nickname);
+		Client *getClient(int fd);
+		int getClientIndex(int fd);
 		std::string getMods() const;
-		
-		void setTime();
 		std::string getTime();
+
+		//setters
+		void setTopicName(std::string topicName);
+		void setChannelName(std::string channelName);
+		void setPass(std::string pass);
+		void setTime();
+
+		void unknownModeFlag(int fd, char flag);
+
+		//modes
+		void setMode(std::vector<Mode> modes, int fd);
+		void inviteOnly(Mode mode, int fd);
+		void topicProtection(Mode mode, int fd);
+		void setLimit(Mode mode, int fd);
+		void setKey(Mode mode, int fd);
+		void setOperator(Mode mode, int fd);
+
 };

@@ -5,6 +5,8 @@
 Channels::Channels(Client &client, std::string channelName): _name(channelName)
 {
 	this->_admins.push_back(client);
+	this->_inviteOnly = false;
+	this->_topicProtection = false;
 	this->_topic = 0;
 }
 
@@ -19,6 +21,8 @@ Channels::Channels(Channels const &channels)
 	this->_topic = channels._topic;
 	this->_password = channels._password;
 	this->_invitedClients = channels._invitedClients;
+	this->_inviteOnly = channels._inviteOnly;
+	this->_topicProtection = channels._topicProtection;
 	this->_mods = channels._mods;
 	this->_created_at = channels._created_at;
 	this->_create_time = channels._create_time;
@@ -36,12 +40,30 @@ Channels const &Channels::operator=(Channels const &channels)
 	this->_topic = channels._topic;
 	this->_created_at = channels._created_at;
 	this->_create_time = channels._create_time;
+	this->_inviteOnly = channels._inviteOnly;
+	this->_topicProtection = channels._topicProtection;
 	this->_topic_name = channels._topic_name;
-
+	this->_password = channels._password;
+	this->_invitedClients = channels._invitedClients;
 	this->_clients = channels._clients;
 	this->_admins = channels._admins;
 
 	return *this;
+}
+
+Client *Channels::getClient(int fd)
+{
+	for (size_t i = 0; i < this->_clients.size(); i++)
+	{
+		if (fd == this->_clients[i].getFd())
+			return &this->_clients[i];
+	}
+	for (size_t i = 0; i < this->_admins.size(); i++)
+	{
+		if (fd == this->_admins[i].getFd())
+			return &this->_admins[i];
+	}
+	return NULL;
 }
 
 std::string Channels::getMods() const
@@ -77,6 +99,50 @@ void Channels::partChannel(Client &client)
 		{
 			this->_admins.erase(this->_admins.begin() + i);
 			std::cout << "Client " << client.getFd() << " left " << this->getChannelName() <<std::endl;
+			return;
+		}
+	}
+}
+
+void Channels::setPass(std::string pass)
+{
+	this->_password = pass;
+}
+
+std::string Channels::getPass() const
+{
+	return this->_password;
+}
+
+void Channels::addAdmin(Client &client)
+{
+	this->_admins.push_back(client);
+}
+
+void Channels::removeAdmin(Client &client)
+{
+	for (size_t i = 0; i < this->_admins.size(); i++)
+	{
+		if (client.getFd() == this->_admins[i].getFd())
+		{
+			this->_admins.erase(this->_admins.begin() + i);
+			return;
+		}
+	}
+}
+
+void Channels::addInvitedClient(std::string nickname)
+{
+	this->_invitedClients.push_back(nickname);
+}
+
+void Channels::removeInvitedClient(std::string nickname)
+{
+	for (size_t i = 0; i < this->_invitedClients.size(); i++)
+	{
+		if (nickname == this->_invitedClients[i])
+		{
+			this->_invitedClients.erase(this->_invitedClients.begin() + i);
 			return;
 		}
 	}
@@ -160,4 +226,39 @@ int Channels::isAdmin(int fd)
 			return 1;
 	}
 	return 0;
+}
+
+int Channels::getClientIndex(int fd)
+{
+	for (size_t i = 0; i < this->_clients.size(); i++)
+	{
+		if (fd == this->_clients[i].getFd())
+			return i;
+	}
+	for (size_t i = 0; i < this->_admins.size(); i++)
+	{
+		if (fd == this->_admins[i].getFd())
+			return i;
+	}
+	return -1;
+}
+
+bool Channels::isTopicProtected()
+{
+	return this->_topicProtection;
+}
+
+bool Channels::isInvited(std::string nickname)
+{
+	for (size_t i = 0; i < this->_invitedClients.size(); i++)
+	{
+		if (nickname == this->_invitedClients[i])
+			return 1;
+	}
+	return 0;
+}
+
+bool Channels::isInviteOnly()
+{
+	return this->_inviteOnly;
 }

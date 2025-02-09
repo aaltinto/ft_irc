@@ -42,11 +42,19 @@ void Server::join(std::vector<std::string> args, int fd)
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (channel != NULL)
 	{
+		if (channel->isInviteOnly() && !channel->isInvited(client->getNick()))
+		{
+			std::cout << "Channel is invite only!" << std::endl;
+			std::string msg = ":server 473 " + client->getFullIdenifer() + " " + args[1] + " :Cannot join channel (+i)";
+			sendMessage(fd, msg);
+			return;
+		}
 		channel->joinChannel(*client);
 		this->handleJoin(*client, *channel);
 		client->addChannel(args[1]);
 		return;
 	}
+
 	this->addChannel(args[1], *client);
 }
 
@@ -263,93 +271,81 @@ void Server::invite(std::vector<std::string> args, int fd)
 		std::cout << "Not in that channel!" << std::endl;
 		return this->notInThatChannel(fd, *channel);
 	}
+	if (channel->isTopicProtected() && !channel->isAdmin(fd))
+		return this->permissionDenied(fd, *channel);
+	channel->addInvitedClient(args[1]);
+	this->_channels[this->getChannelIndex(args[2])] = *channel;
 	//store the invitee's fd for check in if the channel invite only
 	std::string inviteMsg = ":" + inviter->getFullIdenifer() + " INVITE " + args[1] + " " + args[2];
 	sendMessage(clientFd, inviteMsg);
 }
 
-// static void printModes(Client client, std::string channel, std::string mode)
-// {
-// 	std::string modeMsg = ":ircserv 324 " + client.getFullIdenifer() + " " + channel + " " + mode;
-// 	sendMessage(client.getFd(), modeMsg);
-// }
+static void printModes(Client client, std::string channel, std::string mode)
+{
+	std::string modeMsg = ":ircserv 324 " + client.getFullIdenifer() + " " + channel + " " + mode;
+	sendMessage(client.getFd(), modeMsg);
+}
 
-// static std::string getFirstArg(std::vector<std::string> &args, int united)
-// {
-// 	std::string flags = "itkol";
-// 	for (size_t i = 0; i < args.size(); i++)
-// 	{
-// 		if (!united)
-// 		{
-// 			if (args[i].length() > 2)
-// 			{
-// 				std::string ret = args[i];
-// 				args[i] = "";
-// 				return ret;
-// 			}
-// 			else if (args[i].length() == 2 && !(args[i][0] == '+' || args[i][0] == '-'))
-// 			{
-// 				std::string ret = args[i];
-// 				args[i] = "";
-// 				return ret;
-// 			}
-// 			else if (args[i].length() == 1)
-// 			{
-// 				for (size_t k = 0; k < flags.length(); k++)
-// 					if (flags[k] == args[i][0])
-// 						return "";
-// 				std::string ret = args[i];
-// 				args[i] = "";
-// 				return ret;
-// 			}
-// 		}
-// 		else
-// 		{
-// 			for (size_t k = 0; k < flags.length(); k++)
-// 			{
-// 				for (size_t j = 0; j < args[i].size(); j++)
-// 				{
-// 					if (flags[k] != args[i][j])
-// 					{
-// 						std::string ret = args[i];
-// 						args[i] = "";
-// 						return ret;
-// 					}
-// 				}
-// 			}
+std::string getArg(int i, std::vector<std::string> &args)
+{
+	for (size_t j = i; j < args.size(); j++)
+	{
+		if (!args[j].empty() && args[j][0] != '+' && args[j][0] != '-')
+		{
+			std::string ret = args[j];
+			args[j] = "";
+			return ret;
+		}
+	}
+	return "";
+}
 
-// 		}
-// 	}
-// }
+std::vector<Mode> Server::modeSlasher(std::vector<std::string> &args)
+{
+	std::vector<Mode> modes;
 
-// void Server::mode(std::vector<std::string> args, int fd)
-// {
-// 	if (args.size() < 2)
-// 		throw std::runtime_error("Array out of bounds");
-// 	Client *client = this->getClient(fd);
-// 	if (!client)
-// 		return ;
-// 	Channels *channel = this->getChannelbyName(args[1]);
-// 	if (!channel)
-// 	{
-// 		std::cerr << "No such channel" << std::endl;
-// 		this->noSuchChannel(fd, args[1]);
-// 	}
-// 	if (args.size() == 2)
-// 		printModes(*client, channel->getChannelName(), channel->getMods());
-	
-// 	std::vector<Mode> mods;
-// 	int sign = 1;
-// 	for (size_t i = 1; i < args.size(); i++)
-// 	{
-// 		for (size_t j = 0; i < args[i].length(); j++)
-// 		{
+	for (size_t i = 2; i < args.size(); i++)
+	{
+		if (args[i][0] != '+' && args[i][0] != '-')
+			continue;
+		for (size_t j = 1; j < args[i].length(); j++)
+		{
+			Mode mode;
+			mode.setSign(args[i][0] == '-' ? -1 : 1);
+			mode.setFlag(args[i][j]);
+			if (args[i][j] == 'k' || args[i][j] == 'l' || args[i][j] == 'o')
+				mode.setArg(getArg(i + 1, args));
+			else
+				mode.setArg("");
+			modes.push_back(mode);
+			std::cout << "Mode: " << mode.getSign() << mode.getFlag() << " " << mode.getArg() << std::endl; 
+		}
+	}
+	return modes;
+}
 
-// 			sign = -1 ? args[i][0] == '-' : 1;
-// 			Mode tmpMode(sign, args[i][1], getFirstArg(args, 0));
-// 			mods.push_back(tmpMode);
-// 			continue;
-// 		}
-// 	}
-		
-// }
+void Server::mode(std::vector<std::string> args, int fd)
+{
+	std::cout << "mode" << std::endl;
+	if (args.size() < 2)
+		throw std::runtime_error("Array out of bounds");
+	Client *client = this->getClient(fd);
+	if (!client)
+		return ;
+	Channels *channel = this->getChannelbyName(args[1]);
+	if (!channel)
+	{
+		std::cerr << "No such channel" << std::endl;
+		this->noSuchChannel(fd, args[1]);
+	}
+	if (args.size() == 2 || args[2].empty())
+		return printModes(*client, args[1], channel->getMods());
+	if (!channel->isAdmin(client->getFd()))
+	{
+		std::cout << "Permission denied!" << std::endl;
+		return this->permissionDenied(fd, *channel);
+	}
+	std::vector<Mode> modes = modeSlasher(args);
+	if (!modes.empty())
+		channel->setMode(modes, fd);
+}

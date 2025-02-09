@@ -5,6 +5,7 @@
 #include <poll.h>
 #include "../includes/client.hpp"
 #include "../includes/channel.hpp"
+#include "../includes/mode.hpp"
 
 class Server
 {
@@ -39,6 +40,8 @@ class Server
 		void permissionDenied(int fd, Channels channel);
 		void notInThatChannel(int fd, Channels channel);
 		void invalidChannelName(int fd, std::string channelName);
+		void notEnoughParameters(int fd, std::string command);
+
 		//commands
 		void join(std::vector<std::string> args, int fd);
 		void handleJoin(Client client, Channels channel);
@@ -52,7 +55,9 @@ class Server
 		void pass(std::vector<std::string> args, int fd);
 		void invite(std::vector<std::string> args, int fd);
 		void mode(std::vector<std::string> args, int fd);
+		std::vector<Mode> modeSlasher(std::vector<std::string> &args);
 
+		
 
 		void exec_command(int fd, std::vector<std::string> commando);
 		//getters
