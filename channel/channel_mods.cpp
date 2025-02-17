@@ -18,12 +18,12 @@ void Channels::setMode(std::vector<Mode> modes, int fd)
             case 't':
                 this->topicProtection(modes[i], fd);
                 break;
-            // case 'k':
-            //     this->setKey(modes[i], fd);
-            //     break;
-            // case 'l':
-            //     this->setLimit(modes[i], fd);
-            //     break;
+            case 'k':
+                this->setKey(modes[i], fd);
+                break;
+            case 'l':
+                this->activateLimit(modes[i], fd);
+                break;
             default:
                 this->unknownModeFlag(fd, modes[i].getFlag());
                 break;
@@ -130,4 +130,62 @@ void Channels::topicProtection(Mode mode, int fd)
         message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -t";
     }
     this->sendMessageToAll(message);
+}
+
+void Channels::setKey(Mode mode, int fd)
+{
+    std::cout << "setKey" << std::endl;
+    Client *client = this->getClient(fd);
+    std::string message;
+    if (!client)
+        return ;
+    if (mode.getArg().empty())
+    {
+        std::cout << "not enough parameters" << std::endl;
+        return;
+    }
+    if (mode.getSign() == 1)
+    {
+        if (this->isProtected() && this->getPass() == mode.getArg())
+            return;
+        if (!this->isProtected())
+            this->_mods += mode.getFlag();
+        this->setPass(mode.getArg());
+        this->_IsProtected = true;
+        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " +k " + mode.getArg();
+    }
+    else
+    {
+        if (!this->isProtected() || (this->isProtected() && this->getPass() != mode.getArg()))
+            return ;
+        this->_mods.erase(this->_mods.find("k"), 1);
+        this->setPass("");
+        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -k";
+    }
+    this->sendMessageToAll(message);
+}
+
+void Channels::activateLimit(Mode mode, int fd)
+{
+    std::cout << "set limit" << std::endl;
+
+    if (mode.getArg().empty())
+    {
+        std::cout << "not enough parameters" << std::endl;
+        return;
+    }
+    Client *client = this->getClient(fd);
+    std::string message;
+    if (!client)
+        return ;
+    std::string message;
+    if (mode.getSign() == 1)
+    {
+        int num = std::atoi(mode.getArg().c_str());
+        
+        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " +k " + mode.getArg();
+    }
+
+
+
 }

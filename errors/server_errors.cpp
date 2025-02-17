@@ -59,6 +59,6 @@ void Channels::unknownModeFlag(int fd, char flag)
 	Client *client = this->getClient(fd);
 	if (!client)
 		return;
-	std::string errMsg = ":ircserv 501 " + client->getFullIdenifer() + " " + this->getChannelName() + " " + std::to_string(flag) + " :is unknown mode flag";
+	std::string errMsg = ":ircserv 501 " + client->getFullIdenifer() + " " + this->getChannelName() + " " + flag + " :is unknown mode flag";
 	return sendMessage(fd, errMsg);
 }

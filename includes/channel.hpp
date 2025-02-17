@@ -16,6 +16,8 @@ class Channels
 		std::string _mods;
 		bool _inviteOnly;
 		bool _topicProtection;
+		bool _IsProtected;
+		int _limit;
 		std::vector<std::string> _invitedClients;
 		std::vector<Client> _clients;
 		std::vector<Client> _admins;
@@ -38,9 +40,11 @@ class Channels
 		//checks
 		bool checkClientIsIn(int fd);
 		bool isTopicProtected();
+		bool isProtected();
 		bool isInviteOnly();
 		bool isInvited(std::string nickname);
 		int isAdmin(int fd);
+		int checkLimitExceeded();
 
 		//getters
 		std::string getPass() const;
@@ -57,6 +61,7 @@ class Channels
 		void setTopicName(std::string topicName);
 		void setChannelName(std::string channelName);
 		void setPass(std::string pass);
+		void setLimit(int limit=-1);
 		void setTime();
 
 		void unknownModeFlag(int fd, char flag);
@@ -65,7 +70,7 @@ class Channels
 		void setMode(std::vector<Mode> modes, int fd);
 		void inviteOnly(Mode mode, int fd);
 		void topicProtection(Mode mode, int fd);
-		void setLimit(Mode mode, int fd);
+		void activateLimit(Mode mode, int fd);
 		void setKey(Mode mode, int fd);
 		void setOperator(Mode mode, int fd);
 

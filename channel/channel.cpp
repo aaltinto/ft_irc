@@ -228,6 +228,11 @@ int Channels::isAdmin(int fd)
 	return 0;
 }
 
+bool Channels::isProtected()
+{
+	return _IsProtected;
+}
+
 int Channels::getClientIndex(int fd)
 {
 	for (size_t i = 0; i < this->_clients.size(); i++)
@@ -261,4 +266,17 @@ bool Channels::isInvited(std::string nickname)
 bool Channels::isInviteOnly()
 {
 	return this->_inviteOnly;
+}
+
+int Channels::checkLimitExceeded()
+{
+	if (this->_admins.size() + this->_clients.size() < this->_limit
+		|| this->_limit < 0)
+		return 0;
+	return 1;
+}
+
+void Channels::setLimit(int limit)
+{
+	this->_limit = limit;
 }
