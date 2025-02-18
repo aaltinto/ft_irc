@@ -34,13 +34,6 @@ class Server
 		//messages
 		void sendTopic(int fd, Channels channel);
 
-		//errros
-		void noSuchChannel(int fd, std::string channelName);
-		void noSuchNick(int fd, std::string channelName);
-		void permissionDenied(int fd, Channels channel);
-		void notInThatChannel(int fd, Channels channel);
-		void invalidChannelName(int fd, std::string channelName);
-		void notEnoughParameters(int fd, std::string command);
 
 		//commands
 		void join(std::vector<std::string> args, int fd);
@@ -78,3 +71,11 @@ class Server
 
 std::string to_lower(std::string str);
 void sendMessage(int fd, const std::string message);
+
+//errros
+void noSuchChannel(Client *client, std::string channelName);
+void noSuchNick(Client *client,std::string nickName, std::string channelName="");
+void permissionDenied(Client *client, Channels channel);
+void notInThatChannel(Client *client, Channels channel);
+void invalidChannelName(Client *client, std::string channelName);
+void notEnoughParameters(Client *client, std::string command);

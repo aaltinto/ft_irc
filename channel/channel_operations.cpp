@@ -23,7 +23,7 @@ void Server::join(std::vector<std::string> args, int fd)
 	if (args[1][0] != '#')
 	{
 		std::cout << "Channel name has to start with '#'" << std::endl;
-		this->invalidChannelName(fd, args[1]);
+		invalidChannelName(this->getClient(fd),  args[1]);
 		return;
 	}
 
@@ -115,14 +115,14 @@ void Server::privmsg(std::vector<std::string> args, int fd)
 	{
 		Channels *channel = this->getChannelbyName(args[1]);
 		if (!channel)
-			return this->noSuchChannel(fd, args[1]);
+			return noSuchChannel(this->getClient(fd), args[1]);
 		if (channel->checkClientIsIn(fd) == false)
-			return this->notInThatChannel(fd, *channel);
+			return notInThatChannel(this->getClient(fd), *channel);
 		return channel->sendMessageToAll(myMSG, fd);
 	}
 	int client_fd = this->getClientbyNick(args[1]);
 	if (client_fd == -1)
-		return this->noSuchNick(fd, args[1]);
+		return noSuchNick(this->getClient(fd), args[1]);
 	sendMessage(client_fd, myMSG);
 }
 
@@ -138,13 +138,13 @@ void Server::topic(std::vector<std::string> args, int fd)
 		return;
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (!channel)
-		return this->noSuchChannel(fd, args[1]);
+		return noSuchChannel(this->getClient(fd), args[1]);
 	if (args.size() == 2)
 		return this->sendTopic(fd, *channel);
 	if (!channel->isAdmin(fd))
 	{
 		std::cout << "Permission denied!" << std::endl;
-		return this->permissionDenied(fd, *channel);
+		return permissionDenied(this->getClient(fd), *channel);
 	}
 	channel->setTopicName(args[2]);
 	std::string topicUpdate = ":" + client->getFullIdenifer() + " TOPIC " + channel->getChannelName() + " :" + args[2];
@@ -163,7 +163,7 @@ void Server::part(std::vector<std::string> args, int fd)
 		return;
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (!channel)
-		return this->noSuchChannel(fd, args[1]);
+		return noSuchChannel(this->getClient(fd), args[1]);
 	std::string partMessage;
 	if (args.size() == 3)
 		partMessage = ":" + client->getFullIdenifer() + " PART " + channel->getChannelName() + " :" + args[2];
@@ -198,15 +198,15 @@ void Server::kick(std::vector<std::string> args, int fd)
 		return;
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (!channel)
-		return this->noSuchChannel(fd, args[1]);
+		return noSuchChannel(this->getClient(fd), args[1]);
 	if (!channel->isAdmin(fd))
 	{
 		std::cout << "Permission denied!" << std::endl;
-		return this->permissionDenied(fd, *channel);
+		return permissionDenied(this->getClient(fd), *channel);
 	}
 	int client_fd = channel->getClientByNick(args[2]);
 	if (client_fd == -1)
-		return this->noSuchNick(fd, args[2]);
+		return noSuchNick(this->getClient(fd), args[2], channel->getChannelName());
 	Client *client = this->getClient(client_fd);
 	std::string kickMsg = ":" + kicker->getFullIdenifer() +
 						" KICK " + channel->getChannelName() +
@@ -260,21 +260,21 @@ void Server::invite(std::vector<std::string> args, int fd)
 	if (clientFd == -1)
 	{
 		std::cout << "No such nick!" << std::endl;
-		return this->noSuchNick(fd, args[1]);
+		return noSuchNick(this->getClient(fd), args[1], args[2]);
 	}
 	Channels *channel = this->getChannelbyName(args[2]);
 	if (!channel)
 	{
 		std::cout << "No such channel!" << std::endl;
-		return this->noSuchChannel(fd, args[2]);
+		return noSuchChannel(this->getClient(fd), args[2]);
 	}
 	if (channel->checkClientIsIn(fd) == false)
 	{
 		std::cout << "Not in that channel!" << std::endl;
-		return this->notInThatChannel(fd, *channel);
+		return notInThatChannel(this->getClient(fd), *channel);
 	}
 	if (channel->isTopicProtected() && !channel->isAdmin(fd))
-		return this->permissionDenied(fd, *channel);
+		return permissionDenied(this->getClient(fd), *channel);
 	channel->addInvitedClient(args[1]);
 	this->_channels[this->getChannelIndex(args[2])] = *channel;
 	//store the invitee's fd for check in if the channel invite only
@@ -338,14 +338,14 @@ void Server::mode(std::vector<std::string> args, int fd)
 	if (!channel)
 	{
 		std::cerr << "No such channel" << std::endl;
-		this->noSuchChannel(fd, args[1]);
+		noSuchChannel(this->getClient(fd), args[1]);
 	}
 	if (args.size() == 2 || args[2].empty())
 		return printModes(*client, args[1], channel->getMods());
 	if (!channel->isAdmin(client->getFd()))
 	{
 		std::cout << "Permission denied!" << std::endl;
-		return this->permissionDenied(fd, *channel);
+		return permissionDenied(this->getClient(fd), *channel);
 	}
 	std::vector<Mode> modes = modeSlasher(args);
 	if (!modes.empty())
