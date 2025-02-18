@@ -11,6 +11,7 @@ class Client
 		std::string _username;
 		std::string _realName;
 		std::string _ipAddr;
+		bool _isAdmin;
 		bool _isAuth;
 		std::vector<std::string> _joinedChannels;
 	public:
@@ -23,6 +24,7 @@ class Client
 		bool isAuth() const;
 		void auth(bool value = true);
 		bool isJoined(std::string const channel) const;
+		bool isAdmin() const;
 
 		std::string getNick() const;
 		std::string getRealName() const;
@@ -38,4 +40,5 @@ class Client
 		void setNick(std::string const nick);
 		void setRealName(std::string const nick);
 		void setUsername(std::string const username);
+		void setAdmin(bool value = true);
 };

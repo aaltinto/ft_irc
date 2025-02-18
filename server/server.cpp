@@ -34,10 +34,10 @@ void Server::signalHandler(int signum)
 
 Server::Server(std::string port, std::string password){
 	
-	int tmpPort = isPortValid(port);
-	this->_port = tmpPort;
 	isPasswordValid(password);
 	this->_password = password;
+	int tmpPort = isPortValid(port);
+	this->_port = tmpPort;
 	this->serverSocketCreate();
 }
 
@@ -46,7 +46,14 @@ Server::~Server(){}
 
 Server::Server(Server const &server)
 {
-	(void)server;
+	this->_password = server._password;
+	this->_port = server._port;
+	this->_serverSocketFd = server._serverSocketFd;
+	this->_signal = server._signal;
+
+	this->_clients = server._clients;
+	this->_fds = server._fds;
+	this->_channels = server._channels;
 }
 
 Server const &Server::operator=(Server &server)
@@ -54,14 +61,14 @@ Server const &Server::operator=(Server &server)
 	if (this == &server)
     	return *this;
 
-	_password = server._password;
-	_port = server._port;
-	_serverSocketFd = server._serverSocketFd;
-	_signal = server._signal;
+	this->_password = server._password;
+	this->_port = server._port;
+	this->_serverSocketFd = server._serverSocketFd;
+	this->_signal = server._signal;
 
-	_clients = server._clients;
-	_fds = server._fds;
-	_channels = server._channels;
+	this->_clients = server._clients;
+	this->_fds = server._fds;
+	this->_channels = server._channels;
 
 	return *this;
 }

@@ -7,7 +7,6 @@
 class Channels
 {
 	private:
-		int _topic;
 		std::string _name;
 		std::string _created_at;
 		std::string _create_time;
@@ -17,10 +16,9 @@ class Channels
 		bool _inviteOnly;
 		bool _topicProtection;
 		bool _IsProtected;
-		int _limit;
+		size_t _limit;
 		std::vector<std::string> _invitedClients;
 		std::vector<Client> _clients;
-		std::vector<Client> _admins;
 		
 	public:
 		Channels(Client &client, std::string channelName);
@@ -31,8 +29,7 @@ class Channels
 		//operations
 		void joinChannel(Client &client);
 		void partChannel(Client &client);
-		void addAdmin(Client &client);
-		void removeAdmin(Client &client);
+		void adminOps(Client &client, bool value = true);
 		void addInvitedClient(std::string nickname);
 		void removeInvitedClient(std::string nickname);
 		void sendMessageToAll(std::string message, int excludeFd = 0);

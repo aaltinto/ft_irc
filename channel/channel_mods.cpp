@@ -89,7 +89,7 @@ void Channels::setOperator(Mode mode, int fd)
         if (this->isAdmin(clientToOpFd))
             return;
         this->_mods += "o";
-        this->_admins.push_back(*clientToOp);
+        this->adminOps(*clientToOp);
         message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " +o " + mode.getArg();
     }
     else
@@ -100,8 +100,8 @@ void Channels::setOperator(Mode mode, int fd)
         int i = this->getClientIndex(clientToOpFd);
         if (i == -1)
             return;
-        this->_admins.erase(this->_admins.begin() + i);
-        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -o" + mode.getArg();
+        this->adminOps(*clientToOp, false);
+        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -o " + mode.getArg();
     }
     this->sendMessageToAll(message);
 }
@@ -178,14 +178,29 @@ void Channels::activateLimit(Mode mode, int fd)
     std::string message;
     if (!client)
         return ;
-    std::string message;
+    for (size_t i = 0; i < mode.getArg().size(); i++)
+    {
+        if (!std::isdigit(mode.getArg()[i]))
+        {
+            std::cout << "Invalid limit" << std::endl;
+            return;
+        }
+    }
+    int num = std::atoi(mode.getArg().c_str());
+    if (num == 0)
+        mode.setSign(-1);
     if (mode.getSign() == 1)
     {
-        int num = std::atoi(mode.getArg().c_str());
-        
-        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " +k " + mode.getArg();
+
+        this->setLimit(num);
+        this->_mods += "l";
+        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " +l " + mode.getArg();
     }
-
-
-
+    else
+    {
+        this->_mods.erase(this->_mods.find("l"), 1);
+        this->setLimit();
+        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -l";
+    }
+    this->sendMessageToAll(message);
 }

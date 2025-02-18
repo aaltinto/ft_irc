@@ -49,7 +49,7 @@ void Server::join(std::vector<std::string> args, int fd)
 			sendMessage(fd, msg);
 			return;
 		}
-		if (args.size() < 3 && channel->isProtected() && channel->getPass() != args[2])
+		if ((args.size() < 3 && channel->isProtected() && channel->getPass() != args[2]) || channel->checkLimitExceeded())
 			return ;
 		channel->joinChannel(*client);
 		this->handleJoin(*client, *channel);

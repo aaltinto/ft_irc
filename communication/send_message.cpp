@@ -33,11 +33,6 @@ void Channels::sendMessageToAll(std::string message, int excludeFd)
 		if (excludeFd != this->_clients[i].getFd())
 			sendMessage(this->_clients[i].getFd(), message);
 	}
-	for(size_t i = 0; i < this->_admins.size(); i++)
-	{
-		if (excludeFd != this->_admins[i].getFd())
-			sendMessage(this->_admins[i].getFd(), message);
-	}
 }
 
 void Server::handleJoin(Client client, Channels channel)
