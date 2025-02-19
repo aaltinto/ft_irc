@@ -65,3 +65,45 @@ void Channels::unknownModeFlag(int fd, char flag)
 	std::string errMsg = ":ircserv 501 " + client->getFullIdenifer() + " " + this->getChannelName() + " " + flag + " :is unknown mode flag";
 	return sendMessage(fd, errMsg);
 }
+
+void inviteOnlyChannel(Client *client, Channels *channel)
+{
+	std::cout << "Channel is invite only!" << std::endl;
+	if (!client || !channel)
+		return;
+	std::string errMsg = ":server 473 "
+						+ client->getFullIdenifer() + " "
+						+ channel->getChannelName()
+						+ " :Cannot join channel (+i)";
+	return sendMessage(client->getFd(), errMsg);
+}
+
+void passwordRequired(Client *client, Channels *channel)
+{
+	if (!client)
+		return;
+	std::string channelName = "";
+	if (channel)
+		channelName = channel->getChannelName();
+	std::string errMsg = ":server 461 " + client->getFullIdenifer() + " " + channelName + " :Password required";
+	return sendMessage(client->getFd(), errMsg);
+}
+
+void passwordIncorrect(Client *client, Channels *channel)
+{
+	if (!client)
+		return;
+	std::string channelName = "";
+	if (channel)
+		channelName = channel->getChannelName();
+	std::string errMsg = ":server 464 " + client->getFullIdenifer() + " " + channelName + " :Password incorrect";
+	return sendMessage(client->getFd(), errMsg);
+}
+
+void channelLimitExceeded(Client *client, Channels *channel)
+{
+	if (!client || !channel)
+		return;
+	std::string errMsg = ":server 471 " + client->getFullIdenifer() + " " + channel->getChannelName() + " :Cannot join channel (+l)";
+	return sendMessage(client->getFd(), errMsg);
+}

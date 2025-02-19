@@ -65,19 +65,9 @@ void Channels::setOperator(Mode mode, int fd)
         return;
     int clientToOpFd = this->getClientByNick(mode.getArg());
     if (clientToOpFd == -1)
-    {
-        std::cout << "No such nick" << std::endl;
-        std::string errMsg = ":ircserv 401 " + client->getFullIdenifer() + " " + this->getChannelName() + " " + mode.getArg() + " :No such nick";
-	    sendMessage(fd, errMsg);
-        return ;
-    }
+        return noSuchNick(client, mode.getArg(), this->getChannelName());
     if (!this->checkClientIsIn(clientToOpFd))
-    {
-        std::cout << "Client is not in the channel" << std::endl;
-        std::string errMsg = ":ircserv 441 " + client->getFullIdenifer() + " " + mode.getArg() + " " + this->getChannelName() + " :They aren't on that channel";
-        sendMessage(fd, errMsg);
-        return ;
-    }
+        return notInThatChannel(client, *this);
     Client *clientToOp = this->getClient(clientToOpFd);
     if (!clientToOp)
     {
@@ -88,7 +78,6 @@ void Channels::setOperator(Mode mode, int fd)
     {
         if (this->isAdmin(clientToOpFd))
             return;
-        this->_mods += "o";
         this->adminOps(*clientToOp);
         message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " +o " + mode.getArg();
     }
@@ -96,7 +85,6 @@ void Channels::setOperator(Mode mode, int fd)
     {
         if (this->isAdmin(clientToOpFd) == -1)
             return;
-        this->_mods.erase(this->_mods.find("o"), 1);
         int i = this->getClientIndex(clientToOpFd);
         if (i == -1)
             return;
@@ -139,13 +127,10 @@ void Channels::setKey(Mode mode, int fd)
     std::string message;
     if (!client)
         return ;
-    if (mode.getArg().empty())
-    {
-        std::cout << "not enough parameters" << std::endl;
-        return;
-    }
     if (mode.getSign() == 1)
     {
+        if (mode.getArg().empty())
+            return notEnoughParameters(client, "MODE +k");
         if (this->isProtected() && this->getPass() == mode.getArg())
             return;
         if (!this->isProtected())
@@ -156,7 +141,7 @@ void Channels::setKey(Mode mode, int fd)
     }
     else
     {
-        if (!this->isProtected() || (this->isProtected() && this->getPass() != mode.getArg()))
+        if (!this->isProtected())
             return ;
         this->_mods.erase(this->_mods.find("k"), 1);
         this->setPass("");
@@ -169,28 +154,28 @@ void Channels::activateLimit(Mode mode, int fd)
 {
     std::cout << "set limit" << std::endl;
 
-    if (mode.getArg().empty())
-    {
-        std::cout << "not enough parameters" << std::endl;
-        return;
-    }
     Client *client = this->getClient(fd);
     std::string message;
     if (!client)
-        return ;
-    for (size_t i = 0; i < mode.getArg().size(); i++)
-    {
-        if (!std::isdigit(mode.getArg()[i]))
-        {
-            std::cout << "Invalid limit" << std::endl;
-            return;
-        }
-    }
-    int num = std::atoi(mode.getArg().c_str());
-    if (num == 0)
-        mode.setSign(-1);
+    return ;
     if (mode.getSign() == 1)
     {
+        if (mode.getArg().empty())
+            return notEnoughParameters(client, "MODE +l");
+        for (size_t i = 0; i < mode.getArg().size(); i++)
+        {
+            if (!std::isdigit(mode.getArg()[i]))
+            {
+                std::cout << "Invalid limit" << std::endl;
+                return;
+            }
+        }
+        int num = std::atoi(mode.getArg().c_str());
+        if (num <= 0)
+        {
+            mode.setSign(-1);
+            this->activateLimit(mode, fd);
+        }
 
         this->setLimit(num);
         this->_mods += "l";

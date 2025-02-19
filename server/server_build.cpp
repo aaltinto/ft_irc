@@ -10,7 +10,12 @@ void Server::startServer()
 	while (this->_signal == false)
 	{
 		if (poll(&this->_fds[0], this->_fds.size(), -1) == -1 && this->_signal == false)
-			throw(std::runtime_error("poll() stoped working"));
+		{
+			if (errno == EINTR)
+				continue;
+			this->closeFds();
+			throw(std::runtime_error(std::strerror(errno)));
+		}
 		for(size_t i = 0; i < this->_fds.size(); i++)
 		{
 			if (this->_fds[i].revents & POLLIN)
@@ -155,12 +160,27 @@ void Server::serverSocketCreate()
 	address.sin_port = htons(this->_port);
 	
 	//Set port for nonblock mode
-	fcntl(this->_serverSocketFd, F_SETFL, O_NONBLOCK);
+	if (fcntl(this->_serverSocketFd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		std::cerr << "fcntl() failed! " << std::strerror(errno) << std::endl;
+		close(this->_serverSocketFd);
+		throw(std::runtime_error("Failed to set nonblock mode!"));
+	}
 	
 	//bind the socket with port
-	bind(this->_serverSocketFd, (struct sockaddr*)&address, sizeof(address));
+	if (bind(this->_serverSocketFd, (struct sockaddr*)&address, sizeof(address)) == -1)
+	{
+		std::cerr << "bind() failed! " << std::strerror(errno) << std::endl;
+		close(this->_serverSocketFd);
+		throw(std::runtime_error("Failed to bind the socket!"));
+	}
 
-	listen(this->_serverSocketFd, SOMAXCONN);
+	if (listen(this->_serverSocketFd, SOMAXCONN) == -1)
+	{
+		std::cerr << "listen() failed! " << std::strerror(errno) << std::endl;
+		close(this->_serverSocketFd);
+		throw(std::runtime_error("Failed to listen the socket!"));
+	}
 
 	struct pollfd newPoll;
 
@@ -191,12 +211,16 @@ void Server::acceptNewClient()
 	int recievedFd = accept(this->_serverSocketFd, (sockaddr *)&clientAdress, &len);
 	if (recievedFd == -1)
 	{
-		std::cerr << "accept() failed!" << std::endl;
-		return ;
+		std::cerr << "accept() failed! " << std::strerror(errno) << std::endl;
+		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+			return ;
+		this->closeFds();
+		throw(std::runtime_error("Critical error! Shutting down"));
 	}
 	if (fcntl(recievedFd, F_SETFL, O_NONBLOCK) == -1)
 	{
-		std::cerr << "fcntl() failed!" << std::endl;
+		std::cerr << "fcntl() failed! " << std::strerror(errno) << std::endl;
+		close(recievedFd);
 		return ;	
 	}
 
@@ -206,7 +230,14 @@ void Server::acceptNewClient()
 	this->_fds.push_back(newPoll);
 
 	newClient.setFd(recievedFd);
-	newClient.setIpAddr(inet_ntoa(clientAdress.sin_addr));
+	char *ip = inet_ntoa(clientAdress.sin_addr);
+	if (!ip)
+	{
+		std::cerr << "inet_ntoa() failed! " << std::endl;
+		close(recievedFd);
+		return ;
+	}
+	newClient.setIpAddr(ip);
 	this->_clients.push_back(newClient);
 	std::cout << "Client connected.\nRecieved fd <" << recievedFd << ">" << std::endl;
 }

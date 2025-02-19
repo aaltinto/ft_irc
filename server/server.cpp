@@ -136,8 +136,8 @@ void Server::clearClient(int fd, std::string quitMsg)
 	for (size_t i = 0; i < joinedChannels.size(); i++)
 	{
 		int j = this->getChannelIndex(joinedChannels[i]);
-		this->_channels[j].partChannel(this->_clients[index]);
 		this->_channels[j].sendMessageToAll(quitMessage);
+		this->_channels[j].partChannel(this->_clients[index]);
 	}
 	this->_clients.erase(this->_clients.begin() + index);
 	for (size_t i = 0; i < this->_fds.size(); i++)
@@ -149,4 +149,12 @@ void Server::clearClient(int fd, std::string quitMsg)
 		}
 	}
 	close(fd);
+}
+
+void Server::removeChannel(std::string channelName)
+{
+	int index = this->getChannelIndex(channelName);
+	if (index == -1)
+		return ;
+	this->_channels.erase(this->_channels.begin() + index);
 }

@@ -52,6 +52,7 @@ class Channels
 		Client *getClient(int fd);
 		int getClientIndex(int fd);
 		std::string getMods() const;
+		int getClientCount();
 		std::string getTime();
 
 		//setters

@@ -250,3 +250,8 @@ void Channels::setLimit(int limit)
 {
 	this->_limit = limit;
 }
+
+int Channels::getClientCount()
+{
+	return this->_clients.size();
+}

@@ -20,9 +20,9 @@ void Server::sendTopic(int fd, Channels channel)
     Client *client = this->getClient(fd);
     std::string topicMsg;
     if (channel.getTopicName().empty())
-        topicMsg = ":yourserver 331 " + client->getUsername() + " " + channel.getChannelName() + " :No topic is set";
+        topicMsg = ":ircserv 331 " + client->getUsername() + " " + channel.getChannelName() + " :No topic is set";
     else
-        topicMsg = ":yourserver 332 " + client->getUsername() + " " + channel.getChannelName() + " :" + channel.getTopicName();
+        topicMsg = ":ircserv 332 " + client->getUsername() + " " + channel.getChannelName() + " :" + channel.getTopicName();
     sendMessage(fd, topicMsg);
 }
 
@@ -42,8 +42,8 @@ void Server::handleJoin(Client client, Channels channel)
 
     
 
-    std::string namesMsg = ":yourserver 353 " + client.getUsername() + " = " + channel.getChannelName() + " :" + channel.getChannelClients();
-    std::string endNamesMsg = ":yourserver 366 " + client.getUsername() + " " + channel.getChannelName() + " :End of /NAMES list.";
+    std::string namesMsg = ":ircserv 353 " + client.getUsername() + " = " + channel.getChannelName() + " :" + channel.getChannelClients();
+    std::string endNamesMsg = ":ircserv 366 " + client.getUsername() + " " + channel.getChannelName() + " :End of /NAMES list.";
 
     sendMessage(client.getFd(), joinMsg);
     this->sendTopic(client.getFd(), channel);
