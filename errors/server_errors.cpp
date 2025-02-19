@@ -1,4 +1,5 @@
 #include "../includes/server.hpp"
+#include <iostream>
 
 void noSuchChannel(Client *client, std::string channelName)
 {
@@ -8,7 +9,6 @@ void noSuchChannel(Client *client, std::string channelName)
 	return sendMessage(client->getFd(), errMsg);
 }
 
-#include <iostream>
 void noSuchNick(Client *client, std::string nickName, std::string channelName)
 {
 	std::string errMsg;

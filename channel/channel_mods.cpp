@@ -2,6 +2,7 @@
 #include "../includes/mode.hpp"
 #include "../includes/server.hpp"
 #include <iostream>
+#include <cstdlib>
 
 void Channels::setMode(std::vector<Mode> modes, int fd)
 {

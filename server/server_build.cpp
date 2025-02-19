@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <iostream>
+#include <cerrno>
+#include <cstring>
 
 void Server::startServer()
 {

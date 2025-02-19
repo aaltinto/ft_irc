@@ -4,11 +4,12 @@ YAPILACAKLAR:
     setter ve getter fonksiyonlarını dosyalardan ayır. Kolay okunabilirlik için...
     Kanaldaki son kişi quit ile ayrıldığında send bad file descriptor hatası veriyor. (clear client çalışmıyor)
 
+    son kullanıcı ayrıldığında kanalı sil
+    
 YAPILDI:
     Sistem fonksiyonlarına std::strerror(errno) ekle(bind, listen, poll...)
     Eksik error fonksiyonları tamamlandı
     NetCat ile girildiğinde şifresiz işlem yapılabiliyordu. auth kontrolü tüm operasyonlara yayıldı
     "array out of bounds" throwları notEnoughParameters erroruyla değiştirildi
-    son kullanıcı ayrıldığında kanalı sil
     Kanaldan admin vector ü silindi
     Kalan modlar tamamlandı

@@ -59,7 +59,7 @@ class Channels
 		void setTopicName(std::string topicName);
 		void setChannelName(std::string channelName);
 		void setPass(std::string pass);
-		void setLimit(int limit=-1);
+		void setLimit(int limit=0);
 		void setTime();
 
 		void unknownModeFlag(int fd, char flag);
