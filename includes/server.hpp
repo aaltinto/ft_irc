@@ -60,7 +60,7 @@ class Server
 		int getClientbyNick(std::string nickname);
 		int getClientIndex(int fd);
 
-		void addChannel(std::string channelName, Client client);
+		void addChannel(std::string channelName, Client &client);
 		void removeChannel(std::string channelName);
 
 		static void signalHandler(int signum);
@@ -85,3 +85,4 @@ void passwordRequired(Client *client, Channels *channel);
 void channelLimitExceeded(Client *client, Channels *channel);
 void passwordIncorrect(Client *client, Channels *channel);
 void invalidLimit(Client *client, Channels *channel);
+void nickInUse(Client *client, std::string nick);

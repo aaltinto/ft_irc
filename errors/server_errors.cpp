@@ -107,3 +107,11 @@ void channelLimitExceeded(Client *client, Channels *channel)
 	std::string errMsg = ":server 471 " + client->getFullIdenifer() + " " + channel->getChannelName() + " :Cannot join channel (+l)";
 	return sendMessage(client->getFd(), errMsg);
 }
+
+void nickInUse(Client *client, std::string nick)
+{
+	if (!client)
+		return;
+	std::string errMsg = ":server 433 " + client->getFullIdenifer() + " " + nick + " :Nickname is already in use";
+	return sendMessage(client->getFd(), errMsg);
+}

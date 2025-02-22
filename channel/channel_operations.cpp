@@ -4,7 +4,7 @@
 #include "../includes/mode.hpp"
 #include <iostream>
 
-void Server::addChannel(std::string channelName, Client client)
+void Server::addChannel(std::string channelName, Client &client)
 {
 	if (client.isAuth() == false)
 	{
@@ -13,8 +13,12 @@ void Server::addChannel(std::string channelName, Client client)
 		this->clearClient(client.getFd());
 		return;
 	}
+	client.addChannel(channelName);
+	std::cout << "get joined channels: " << client.getJoinedChannels().size() << std::endl;
 	Channels channel(client, channelName);
 	this->_channels.push_back(channel);
+	Client *clientPtr = this->getClient(client.getFd());
+	std::cout << "get joined channels after: " << clientPtr->getJoinedChannels().size() << std::endl;
 	this->handleJoin(client, channel);
 	std::cout << "Client " << client.getFd() << " joined " << channel.getChannelName() << std::endl;
 }
@@ -70,7 +74,7 @@ void Server::join(std::vector<std::string> args, int fd)
 
 void Server::nick(std::vector<std::string> args, int fd)
 {
-
+	std::string msg;
 	std::cout << "nick" << std::endl;
 	if (args.size() < 2)
 		return notEnoughParameters(this->getClient(fd), "NICK");
@@ -84,7 +88,25 @@ void Server::nick(std::vector<std::string> args, int fd)
 		this->clearClient(fd);
 		return;
 	}
+	if (this->getClientbyNick(args[1]) != -1)
+	{
+		std::cout << "Nick already in use!" << std::endl;
+		return nickInUse(this->getClient(fd), args[1]);
+	}
+	if (this->_clients[i].getNick().empty())
+		msg = ":" + this->_clients[i].getFullIdenifer() + " NICK :" + args[1];
 	this->_clients[i].setNick(args[1]);
+	std::vector <std::string> channels = this->_clients[i].getJoinedChannels();
+	for (size_t i = 0; i < channels.size() ; i++)
+	{
+		Channels *channel = this->getChannelbyName(channels[i]);
+		if (!channel)
+		{
+			std::cout << "Channel not found!" << std::endl;
+			continue;
+		}
+		channel->sendMessageToAll(msg, fd);
+	}
 }
 
 void Server::user(std::vector<std::string> args, int fd)
@@ -211,16 +233,24 @@ void Server::quit(std::vector<std::string> args, int fd)
 		return notEnoughParameters(this->getClient(fd), "QUIT");
 	int i = this->getClientIndex(fd);
 	if (i == -1)
+	{
+		std::cout << "Client not found!" << std::endl;
 		return;
+	}
 	std::vector<std::string> channels = this->_clients[i].getJoinedChannels();
 	this->clearClient(fd, args[1]);
+	std::cout << "channels size: " << channels.size() << std::endl;
 	for (size_t i = 0; i < channels.size(); i++)
 	{
 		Channels *channel = this->getChannelbyName(channels[i]);
 		if (!channel)
 			continue;
+		std::cout << "client count: " << channel->getClientCount() << std::endl;
 		if (channel->getClientCount() == 0)
+		{
+			std::cout << "Channel " << channel->getChannelName() << " is empty, removing it!" << std::endl;
 			this->removeChannel(channels[i]);
+		}
 	}
 }
 
