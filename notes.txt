@@ -3,8 +3,11 @@ YAPILACAKLAR:
     Error fonksiyonları hem kanala hem servera mesaj atmalı
     setter ve getter fonksiyonlarını dosyalardan ayır. Kolay okunabilirlik için...
 
+     
     
 YAPILDI:
+    *pass yapılmışken tekrar pass yapılırsa kanaldan atıyor giriş yapanı kontrol etme.
+    *user name döndürüyor hatalarda (şüpheli).
     Nick değiştirildiği zaman kanallara mesaj olarak aktarılıyor
     Kanaldaki son kişi quit ile ayrıldığında send bad file descriptor hatası veriyor. (clear client çalışmıyor)
     son kullanıcı ayrıldığında kanalı sil

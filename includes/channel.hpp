@@ -19,6 +19,7 @@ class Channels
 		size_t _limit;
 		std::vector<std::string> _invitedClients;
 		std::vector<Client> _clients;
+		std::vector<Client> _admin;
 		
 	public:
 		Channels(Client &client, std::string channelName);

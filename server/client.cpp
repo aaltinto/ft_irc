@@ -13,7 +13,6 @@ Client::Client(Client const &client)
 	this->setUsername(client.getUsername());
 	this->setRealName(client.getRealName());
 	this->setIpAddr(client.getIpAdd());
-	this->_isAdmin = client.isAdmin();
 	this->_isAuth = client.isAuth();
 	this->_joinedChannels = client.getJoinedChannels();
 }
@@ -26,7 +25,6 @@ Client const &Client::operator=(Client const &client)
 	this->setUsername(client.getUsername());
 	this->setIpAddr(client.getIpAdd());
 	this->_isAuth = client.isAuth();
-	this->_isAdmin = client.isAdmin();
 	this->_joinedChannels = client.getJoinedChannels();
 
 	return *this;
@@ -127,14 +125,4 @@ void Client::removeChannel(std::string const channel)
 std::vector<std::string> Client::getJoinedChannels() const
 {
 	return this->_joinedChannels;
-}
-
-void Client::setAdmin(bool value)
-{
-	this->_isAdmin = value;
-}
-
-bool Client::isAdmin() const
-{
-	return this->_isAdmin;
 }

@@ -79,7 +79,7 @@ void noSuchNick(Client *client,std::string nickName, std::string channelName="")
 void permissionDenied(Client *client, Channels channel);
 void notInThatChannel(Client *client, Channels channel);
 void invalidChannelName(Client *client, std::string channelName);
-void notEnoughParameters(Client *client, std::string command);
+void notEnoughParameters(Client *client, std::string command, std::string channelName ="");
 void inviteOnlyChannel(Client *client, Channels *channel);
 void passwordRequired(Client *client, Channels *channel);
 void channelLimitExceeded(Client *client, Channels *channel);

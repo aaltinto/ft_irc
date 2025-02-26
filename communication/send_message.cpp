@@ -20,9 +20,9 @@ void Server::sendTopic(int fd, Channels channel)
     Client *client = this->getClient(fd);
     std::string topicMsg;
     if (channel.getTopicName().empty())
-        topicMsg = ":ircserv 331 " + client->getUsername() + " " + channel.getChannelName() + " :No topic is set";
+        topicMsg = ":ircserv 331 " + client->getFullIdenifer() + " " + channel.getChannelName() + " :No topic is set";
     else
-        topicMsg = ":ircserv 332 " + client->getUsername() + " " + channel.getChannelName() + " :" + channel.getTopicName();
+        topicMsg = ":ircserv 332 " + client->getFullIdenifer() + " " + channel.getChannelName() + " :" + channel.getTopicName();
     sendMessage(fd, topicMsg);
 }
 

@@ -16,7 +16,7 @@ void noSuchNick(Client *client, std::string nickName, std::string channelName)
 		return;
 	if (channelName.empty())
 	{
-		std::string errMsg = ":ircserv 401 " + client->getFullIdenifer() + " " + nickName + " :No such nick";
+		errMsg = ":ircserv 401 " + client->getFullIdenifer() + " " + nickName + " :No such nick";
 		return sendMessage(client->getFd(), errMsg);
 	}
 	errMsg = ":ircserv 401 " + client->getFullIdenifer() + " " + channelName + " " + nickName + " :No such nick";
@@ -49,11 +49,17 @@ void invalidChannelName(Client *client, std::string channelName)
 	return sendMessage(client->getFd(), errMsg);
 }
 
-void notEnoughParameters(Client *client, std::string command)
+void notEnoughParameters(Client *client, std::string command, std::string channelName)
 {
+	std::string errMsg;
 	if (!client)
 		return;
-	std::string errMsg = ":ircserv 461 " + client->getFullIdenifer() + " " + command + " :Not enough parameters";
+	if (channelName.empty())
+	{
+		errMsg = ":ircserv 461 " + client->getFullIdenifer() + " " + command + " :Not enough parameters";
+		return sendMessage(client->getFd(), errMsg);
+	}
+	errMsg = ":ircserv 461 " + client->getFullIdenifer() + " " + channelName + " " + command + " :Not enough parameters";
 	return sendMessage(client->getFd(), errMsg);
 }
 

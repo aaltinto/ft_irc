@@ -131,7 +131,7 @@ void Channels::setKey(Mode mode, int fd)
     if (mode.getSign() == 1)
     {
         if (mode.getArg().empty())
-            return notEnoughParameters(client, "MODE +k");
+            return notEnoughParameters(client, "MODE +k", this->getChannelName());
         if (this->isProtected() && this->getPass() == mode.getArg())
             return;
         if (!this->isProtected())
@@ -162,7 +162,7 @@ void Channels::activateLimit(Mode mode, int fd)
     if (mode.getSign() == 1)
     {
         if (mode.getArg().empty())
-            return notEnoughParameters(client, "MODE +l");
+            return notEnoughParameters(client, "MODE +l", this->getChannelName());
         for (size_t i = 0; i < mode.getArg().size(); i++)
         {
             if (!std::isdigit(mode.getArg()[i]))

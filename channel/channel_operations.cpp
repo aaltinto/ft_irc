@@ -223,8 +223,12 @@ void Server::part(std::vector<std::string> args, int fd)
 	channel->sendMessageToAll(partMessage);
 	client->removeChannel(args[1]);
 	channel->partChannel(*client);
+	std::cout << channel->getClientCount() << std::endl;
 	if (channel->getClientCount() == 0)
+	{
+		std::cout << "Channel " << channel->getChannelName() << " is empty, removing it!" << std::endl;
 		this->removeChannel(channel->getChannelName());
+	}
 }
 
 
@@ -238,6 +242,13 @@ void Server::quit(std::vector<std::string> args, int fd)
 	if (i == -1)
 	{
 		std::cout << "Client not found!" << std::endl;
+		return;
+	}
+	if (this->_clients[i].isAuth() == false)
+	{
+		std::cout << "Password required!" << std::endl;
+		passwordRequired(this->getClient(fd), NULL);
+		this->clearClient(fd);
 		return;
 	}
 	std::vector<std::string> channels = this->_clients[i].getJoinedChannels();
@@ -303,6 +314,8 @@ void Server::pass(std::vector<std::string> args, int fd)
 	std::cout << "pass" << std::endl;
 	int i = this->getClientIndex(fd);
 	if (i == -1)
+		return;
+	if (this->_clients[i].isAuth())
 		return;
 	if (args.size() < 2)
 	{
