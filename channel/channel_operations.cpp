@@ -3,6 +3,7 @@
 #include "../includes/channel.hpp"
 #include "../includes/mode.hpp"
 #include <iostream>
+#include <string>
 
 void Server::addChannel(std::string channelName, Client &client)
 {
@@ -93,10 +94,12 @@ void Server::nick(std::vector<std::string> args, int fd)
 		std::cout << "Nick already in use!" << std::endl;
 		return nickInUse(this->getClient(fd), args[1]);
 	}
-	if (this->_clients[i].getNick().empty())
-		msg = ":" + this->_clients[i].getFullIdenifer() + " NICK :" + args[1];
+	// if (!this->_clients[i].getNick().empty())
+	msg = ":" + this->_clients[i].getFullIdenifer() + " NICK :" + args[1];
 	this->_clients[i].setNick(args[1]);
 	std::vector <std::string> channels = this->_clients[i].getJoinedChannels();
+	if (channels.size() == 0)
+		sendMessage(fd, msg);
 	for (size_t i = 0; i < channels.size() ; i++)
 	{
 		Channels *channel = this->getChannelbyName(channels[i]);
@@ -105,7 +108,7 @@ void Server::nick(std::vector<std::string> args, int fd)
 			std::cout << "Channel not found!" << std::endl;
 			continue;
 		}
-		channel->sendMessageToAll(msg, fd);
+		channel->sendMessageToAll(msg);
 	}
 }
 
