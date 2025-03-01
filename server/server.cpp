@@ -131,6 +131,7 @@ void Server::clearClient(int fd, std::string quitMsg)
 	int index = this->getClientIndex(fd);
 	if (index == -1)
 		throw std::runtime_error("Client not found");
+	write(1, "...debug...\n", 13);
 	std::string quitMessage = ":" + this->_clients[index].getFullIdenifer() + " QUIT :" + quitMsg;
 	std::vector<std::string> joinedChannels = this->_clients[index].getJoinedChannels();
 	for (size_t i = 0; i < joinedChannels.size(); i++)

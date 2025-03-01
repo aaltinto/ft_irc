@@ -105,7 +105,7 @@ void Channels::partChannel(Client &client)
 	{
 		if (client.getFd() == this->_admin[i].getFd())
 		{
-			this->_clients.erase(this->_admin.begin() + i);
+			this->_admin.erase(this->_admin.begin() + i);
 			std::cout << "Client " << client.getFd() << " left " << this->getChannelName() <<std::endl;
 			return;
 		}
@@ -192,13 +192,13 @@ std::string Channels::getChannelClients()
 	std::string clients;
 	for (size_t i = 0; i < this->_admin.size(); i++)
 	{
-		if (i != 0)
+		if (!clients.empty())
 			clients += " ";
 		clients += "@" + this->_admin[i].getNick();
 	}
 	for (size_t i = 0; i < this->_clients.size(); i++)
 	{
-		if (i != 0)
+		if (!clients.empty())
 			clients += " ";
 		clients += this->_clients[i].getNick();
 	}
