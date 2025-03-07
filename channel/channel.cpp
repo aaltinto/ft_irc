@@ -287,7 +287,12 @@ bool Channels::isInviteOnly()
 
 int Channels::checkLimitExceeded()
 {
-	if (this->_clients.size() < this->_limit
+	size_t count;
+
+	count = this->_clients.size();
+	count += this->_admin.size();
+
+	if (count < this->_limit
 		|| this->_limit <= 0)
 		return 0;
 	return 1;

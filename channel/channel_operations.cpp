@@ -72,6 +72,19 @@ void Server::join(std::vector<std::string> args, int fd)
 
 	this->addChannel(args[1], *client);
 }
+#include <cctype>
+
+bool nickChecker(std::string nick)
+{
+	if (!std::isalpha(nick[1]) && nick[1] != '_')
+		return false;
+	for (size_t i = 0; i < nick.length(); i++)
+	{
+		if (!std::isalnum(nick[i]) && nick[1] != '_' && nick[1] != '-')
+			return false;
+	}
+	return true;
+}
 
 void Server::nick(std::vector<std::string> args, int fd)
 {
@@ -88,6 +101,10 @@ void Server::nick(std::vector<std::string> args, int fd)
 		passwordRequired(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
+	}
+	if (args[1][0] == '@')
+	{
+
 	}
 	if (this->getClientbyNick(args[1]) != -1)
 	{

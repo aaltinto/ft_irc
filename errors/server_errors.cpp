@@ -121,3 +121,12 @@ void nickInUse(Client *client, std::string nick)
 	std::string errMsg = ":server 433 " + client->getFullIdenifer() + " " + nick + " :Nickname is already in use";
 	return sendMessage(client->getFd(), errMsg);
 }
+
+void erroneusNick(Client *client, std::string nick)
+{
+	if (!client)
+		return;
+	std::string errMsg = ":server 432 " + client->getFullIdenifer() + " " + nick + " :Erroneus nick!";
+	return sendMessage(client->getFd(), errMsg);
+	
+}

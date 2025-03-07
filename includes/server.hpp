@@ -86,3 +86,4 @@ void channelLimitExceeded(Client *client, Channels *channel);
 void passwordIncorrect(Client *client, Channels *channel);
 void invalidLimit(Client *client, Channels *channel);
 void nickInUse(Client *client, std::string nick);
+void erroneusNick(Client *client, std::string nick);
