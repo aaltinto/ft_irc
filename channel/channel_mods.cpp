@@ -181,19 +181,20 @@ void Channels::activateLimit(Mode mode, int fd)
         {
             mode.setSign(-1);
             this->activateLimit(mode, fd);
+            return;
         }
 
         if (_limit == -1)
             this->_mods += "l";
         this->setLimit(num);
-        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " +l " + mode.getArg();
+        message = ":ircserv 324 " + client->getFullIdenifer() + " " + this->getChannelName() + " +l " + mode.getArg();
     }
     else
     {
         if (_limit != -1)
             this->_mods.erase(this->_mods.find("l"), 1);
         this->setLimit();
-        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -l";
+        message = ":ircserv 324 " + client->getFullIdenifer() + " " + this->getChannelName() + " -l";
     }
     this->sendMessageToAll(message);
 }
