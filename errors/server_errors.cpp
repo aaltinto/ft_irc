@@ -128,5 +128,18 @@ void erroneusNick(Client *client, std::string nick)
 		return;
 	std::string errMsg = ":server 432 " + client->getFullIdenifer() + " " + nick + " :Erroneus nick!";
 	return sendMessage(client->getFd(), errMsg);
-	
+}
+
+void invalidArgument(Client *client, std::string command, std::string argument, std::string correctUsage = "")
+{
+    if (!client)
+        return;
+    std::string errMsg = ":ircserv " + client->getFullIdenifer() + " " + command + " " + argument + " :Invalid argument";
+    sendMessage(client->getFd(), errMsg);
+    
+    if (!correctUsage.empty())
+    {
+        std::string usageMsg = ":ircserv " + client->getFullIdenifer() + " " + command + " :Correct usage: " + correctUsage;
+        return sendMessage(client->getFd(), usageMsg);
+    }
 }
