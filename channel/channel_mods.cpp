@@ -56,7 +56,7 @@ void Channels::inviteOnly(Mode mode, int fd)
     }
     this->sendMessageToAll(message);
 }
-
+#include <unistd.h>
 void Channels::setOperator(Mode mode, int fd)
 {
     std::cout << "set operator" << std::endl;
@@ -79,8 +79,10 @@ void Channels::setOperator(Mode mode, int fd)
     {
         if (this->isAdmin(clientToOpFd))
             return;
+        std::string clientName = client->getFullIdenifer();
         this->adminOps(*clientToOp);
-        message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " +o " + mode.getArg();
+        
+        message = ":ircserv 324 " + clientName  + " " + this->getChannelName() + " +o " + mode.getArg();
     }
     else
     {
@@ -92,7 +94,9 @@ void Channels::setOperator(Mode mode, int fd)
         this->adminOps(*clientToOp, false);
         message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -o " + mode.getArg();
     }
+    write(1, "a\n", 2);
     this->sendMessageToAll(message);
+    
 }
 
 void Channels::topicProtection(Mode mode, int fd)
@@ -167,7 +171,7 @@ void Channels::activateLimit(Mode mode, int fd)
         {
             if (!std::isdigit(mode.getArg()[i]))
             {
-                //#########
+                //t#########
                 std::cout << "Invalid limit" << std::endl;
                 return;
             }
@@ -179,13 +183,15 @@ void Channels::activateLimit(Mode mode, int fd)
             this->activateLimit(mode, fd);
         }
 
+        if (_limit == -1)
+            this->_mods += "l";
         this->setLimit(num);
-        this->_mods += "l";
         message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " +l " + mode.getArg();
     }
     else
     {
-        this->_mods.erase(this->_mods.find("l"), 1);
+        if (_limit != -1)
+            this->_mods.erase(this->_mods.find("l"), 1);
         this->setLimit();
         message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -l";
     }

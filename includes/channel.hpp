@@ -16,7 +16,7 @@ class Channels
 		bool _inviteOnly;
 		bool _topicProtection;
 		bool _IsProtected;
-		size_t _limit;
+		int _limit;
 		std::vector<std::string> _invitedClients;
 		std::vector<Client> _clients;
 		std::vector<Client> _admin;
@@ -60,7 +60,7 @@ class Channels
 		void setTopicName(std::string topicName);
 		void setChannelName(std::string channelName);
 		void setPass(std::string pass);
-		void setLimit(int limit=0);
+		void setLimit(int limit = -1);
 		void setTime();
 
 		void unknownModeFlag(int fd, char flag);
