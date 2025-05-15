@@ -8,16 +8,16 @@
 #include <cerrno>  // errno için eklenmeli
 
 // Command handler implementations
-void HelpCommandHandler::execute(Bot* bot, const std::string& sender, const std::vector<std::string>& args) {
-    bot->cmdHelp(sender, args);
+void HelpCommandHandler::execute(Bot* bot, const std::string& sender, const std::string& target, const std::vector<std::string>& args) {
+    bot->cmdHelp(sender, target, args);
 }
 
-void PingCommandHandler::execute(Bot* bot, const std::string& sender, const std::vector<std::string>& args) {
-    bot->cmdPing(sender, args);
+void PingCommandHandler::execute(Bot* bot, const std::string& sender, const std::string& target, const std::vector<std::string>& args) {
+    bot->cmdPing(sender, target, args);
 }
 
-void InfoCommandHandler::execute(Bot* bot, const std::string& sender, const std::vector<std::string>& args) {
-    bot->cmdInfo(sender, args);
+void InfoCommandHandler::execute(Bot* bot, const std::string& sender, const std::string& target, const std::vector<std::string>& args) {
+    bot->cmdInfo(sender, target, args);
 }
 
 Bot::Bot(const std::string& server, int port, const std::string& password, const std::string& nickname)
@@ -144,7 +144,7 @@ bool Bot::sendMessage(const std::string& target, const std::string& message) {
     return sendRaw("PRIVMSG " + target + " :" + message);
 }
 
-void Bot::parseCommand(const std::string& sender, const std::string& message) {
+void Bot::parseCommand(const std::string& sender, const std::string& target, const std::string& message) {
     std::istringstream iss(message.substr(1)); // Remove the ! prefix
     std::string command;
     iss >> command;
@@ -158,20 +158,21 @@ void Bot::parseCommand(const std::string& sender, const std::string& message) {
     // Check if command exists in our commands map
     std::map<std::string, CommandHandler*>::iterator it = _commands.find(command);
     if (it != _commands.end()) {
-        it->second->execute(this, sender, args);
+        it->second->execute(this, sender, target, args);
     }
 }
 
-void Bot::cmdHelp(const std::string& sender, const std::vector<std::string>& /* args */) {
+// Modified command methods to use the target parameter
+void Bot::cmdHelp(const std::string& sender, const std::string& target, const std::vector<std::string>& /* args */) {
     std::string helpMsg = "Available commands: !help, !ping, !info";
-    sendMessage(sender, helpMsg);
+    sendMessage(target, helpMsg);
 }   
 
-void Bot::cmdPing(const std::string& sender, const std::vector<std::string>& /* args */) {
-    sendMessage(sender, "Pong!");
+void Bot::cmdPing(const std::string& sender, const std::string& target, const std::vector<std::string>& /* args */) {
+    sendMessage(target, "Pong!");
 }
 
-void Bot::cmdInfo(const std::string& sender, const std::vector<std::string>& /* args */) {
+void Bot::cmdInfo(const std::string& sender, const std::string& target, const std::vector<std::string>& /* args */) {
     std::stringstream ss;
     ss << _port;
     std::string infoMsg = "I'm a C++ IRC bot. Connected to: " + _server + ":" + ss.str();
@@ -182,7 +183,7 @@ void Bot::cmdInfo(const std::string& sender, const std::vector<std::string>& /* 
             infoMsg += ", ";
         }
     }
-    sendMessage(sender, infoMsg);
+    sendMessage(target, infoMsg);
 }
 
 void Bot::processMessage(const std::string& message) {
@@ -204,19 +205,29 @@ void Bot::processMessage(const std::string& message) {
     
     // Özel mesajları işle
     if (message.find("PRIVMSG") != std::string::npos) {
-        // Mesajın gönderici kısmını çıkar
+        // Gönderici bilgisini çıkar
         size_t nickEnd = message.find('!');
         if (nickEnd != std::string::npos) {
             std::string sender = message.substr(1, nickEnd - 1);
             
-            // Mesajın içeriğini çıkar
-            size_t contentStart = message.find(" :", message.find("PRIVMSG"));
-            if (contentStart != std::string::npos) {
-                std::string content = message.substr(contentStart + 2);
+            // Hedef (kanal veya kullanıcı) bilgisini çıkar
+            size_t targetStart = message.find("PRIVMSG ") + 8;
+            size_t targetEnd = message.find(" :", targetStart);
+            
+            if (targetEnd != std::string::npos) {
+                std::string target = message.substr(targetStart, targetEnd - targetStart);
+                std::string content = message.substr(targetEnd + 2);
                 
                 // Komut olup olmadığını kontrol et
                 if (content[0] == '!') {
-                    parseCommand(sender, content);
+                    // Hedef botun kendi ismi ise (özel mesaj), yanıtı gönderene yolla
+                    std::string responseTarget;
+                    if (target == _nickname) {
+                        responseTarget = sender; // Özel mesaj durumunda gönderene yanıt ver
+                    } else {
+                        responseTarget = target; // Kanal mesajı durumunda kanala yanıt ver
+                    }
+                    parseCommand(sender, responseTarget, content);
                 }
             }
         }

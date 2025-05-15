@@ -10,23 +10,23 @@ class Bot;
 class CommandHandler {
 public:
     virtual ~CommandHandler() {}
-    virtual void execute(Bot* bot, const std::string& sender, const std::vector<std::string>& args) = 0;
+    virtual void execute(Bot* bot, const std::string& sender, const std::string& target, const std::vector<std::string>& args) = 0;
 };
 
 // Specific command handlers
 class HelpCommandHandler : public CommandHandler {
 public:
-    void execute(Bot* bot, const std::string& sender, const std::vector<std::string>& args);
+    void execute(Bot* bot, const std::string& sender, const std::string& target, const std::vector<std::string>& args);
 };
 
 class PingCommandHandler : public CommandHandler {
 public:
-    void execute(Bot* bot, const std::string& sender, const std::vector<std::string>& args);
+    void execute(Bot* bot, const std::string& sender, const std::string& target, const std::vector<std::string>& args);
 };
 
 class InfoCommandHandler : public CommandHandler {
 public:
-    void execute(Bot* bot, const std::string& sender, const std::vector<std::string>& args);
+    void execute(Bot* bot, const std::string& sender, const std::string& target, const std::vector<std::string>& args);
 };
 
 class Bot {
@@ -40,9 +40,9 @@ public:
     void runLoop();
     
     // Bot commands - now made public so handler classes can access them
-    void cmdHelp(const std::string& sender, const std::vector<std::string>& args);
-    void cmdPing(const std::string& sender, const std::vector<std::string>& args);
-    void cmdInfo(const std::string& sender, const std::vector<std::string>& args);
+    void cmdHelp(const std::string& sender, const std::string& target, const std::vector<std::string>& args);
+    void cmdPing(const std::string& sender, const std::string& target, const std::vector<std::string>& args);
+    void cmdInfo(const std::string& sender, const std::string& target, const std::vector<std::string>& args);
     
     void handleTerminalCommand(const std::string& cmd);
 
@@ -63,6 +63,6 @@ private:
     bool authenticate();
     bool sendRaw(const std::string& message);
     void processMessage(const std::string& message);
-    void parseCommand(const std::string& sender, const std::string& message);
+    void parseCommand(const std::string& sender, const std::string& target, const std::string& message);
     void registerCommands();
 };
