@@ -16,7 +16,7 @@ void Server::startServer()
 			if (errno == EINTR)
 				continue;
 			this->closeFds();
-			throw(std::runtime_error(std::strerror(errno)));
+			throw std::runtime_error(std::strerror(errno));
 		}
 		for(size_t i = 0; i < this->_fds.size(); i++)
 		{
@@ -153,7 +153,7 @@ void Server::serverSocketCreate()
 	//create a socket
 	this->_serverSocketFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_serverSocketFd == -1)
-		throw(std::runtime_error("Failed to create a socket!"));
+		throw std::runtime_error("Failed to create a socket!");
 
 	//Setup port for listening
 	struct sockaddr_in address;
@@ -166,7 +166,7 @@ void Server::serverSocketCreate()
 	{
 		std::cerr << "fcntl() failed! " << std::strerror(errno) << std::endl;
 		close(this->_serverSocketFd);
-		throw(std::runtime_error("Failed to set nonblock mode!"));
+		throw std::runtime_error("Failed to set nonblock mode!");
 	}
 	
 	//bind the socket with port
@@ -174,14 +174,14 @@ void Server::serverSocketCreate()
 	{
 		std::cerr << "bind() failed! " << std::strerror(errno) << std::endl;
 		close(this->_serverSocketFd);
-		throw(std::runtime_error("Failed to bind the socket!"));
+		throw std::runtime_error("Failed to bind the socket!");
 	}
 
 	if (listen(this->_serverSocketFd, SOMAXCONN) == -1)
 	{
 		std::cerr << "listen() failed! " << std::strerror(errno) << std::endl;
 		close(this->_serverSocketFd);
-		throw(std::runtime_error("Failed to listen the socket!"));
+		throw std::runtime_error("Failed to listen the socket!");
 	}
 
 	struct pollfd newPoll;
