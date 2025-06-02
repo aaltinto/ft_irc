@@ -1,5 +1,4 @@
 NAME = ircserv
-BOT = ircbot
 
 CC = c++
 
@@ -18,11 +17,7 @@ SRC = server/main.cpp \
 		channel/channel_operations.cpp \
 		communication/send_message.cpp \
 
-BOT_SRC = bot/main.cpp \
-		  bot/bot.cpp \
-
 OBJ = $(SRC:.cpp=.o)
-BOT_OBJ = $(BOT_SRC:.cpp=.o)
 
 RM = rm -f
 
@@ -31,21 +26,25 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CC) $(CPPFLAGS) $(OBJ) -o $(NAME)
 
-$(BOT): $(BOT_OBJ)
-	$(CC) $(CPPFLAGS) $(BOT_OBJ) -o $(BOT)
-
-bot: $(BOT)
-
 clean:
 	$(RM) $(OBJ) $(BOT_OBJ)
 	
 fclean: clean
-	$(RM) $(NAME) $(BOT)
+	$(RM) $(NAME) $(BOT_NAME)
 
 re: fclean $(NAME)
 	$(RM) $(OBJ)
 
-rebot: fclean $(BOT)
-	$(RM) $(BOT_OBJ)
+# Bot compilation
+BOT_NAME = ircbot
+BOT_SRC = bot/main.cpp bot/bot.cpp
+BOT_OBJ = $(BOT_SRC:.cpp=.o)
+
+bot: $(BOT_NAME)
+
+$(BOT_NAME): $(BOT_OBJ)
+	$(CC) $(CPPFLAGS) $(BOT_OBJ) -o $(BOT_NAME)
+
+rebot: fclean bot
 
 .PHONY: all clean fclean re bot rebot

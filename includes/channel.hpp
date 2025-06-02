@@ -54,7 +54,6 @@ class Channels
 		int getClientIndex(int fd);
 		std::string getMods() const;
 		int getClientCount();
-		std::string getTime();
 
 		//setters
 		void setTopicName(std::string topicName);

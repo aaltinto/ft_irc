@@ -305,5 +305,5 @@ void Channels::setLimit(int limit)
 
 int Channels::getClientCount()
 {
-	return this->_clients.size();
+	return this->_clients.size() + this->_admin.size();
 }

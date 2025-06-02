@@ -36,13 +36,14 @@ Server::Server(std::string port, std::string password){
 	
 	isPasswordValid(password);
 	this->_password = password;
-	int tmpPort = isPortValid(port);
-	this->_port = tmpPort;
+	this->_port = isPortValid(port);
 	this->serverSocketCreate();
 }
 
 
-Server::~Server(){}
+Server::~Server(){
+	system("leaks ircserv");
+}
 
 Server::Server(Server const &server)
 {
@@ -136,8 +137,13 @@ void Server::clearClient(int fd, std::string quitMsg)
 	for (size_t i = 0; i < joinedChannels.size(); i++)
 	{
 		int j = this->getChannelIndex(joinedChannels[i]);
-		this->_channels[j].sendMessageToAll(quitMessage);
+		this->_channels[j].sendMessageToAll(quitMessage, fd);
 		this->_channels[j].partChannel(this->_clients[index]);
+		if (this->_channels[j].getClientCount() == 0)
+		{
+			std::cout << "Channel " << this->_channels[j].getChannelName() << " is empty, removing it!" << std::endl;
+			this->removeChannel(this->_channels[j].getChannelName());
+		}
 	}
 	this->_clients.erase(this->_clients.begin() + index);
 	for (size_t i = 0; i < this->_fds.size(); i++)

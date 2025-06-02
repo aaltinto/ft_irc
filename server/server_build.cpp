@@ -13,8 +13,6 @@ void Server::startServer()
 	{
 		if (poll(&this->_fds[0], this->_fds.size(), -1) == -1 && this->_signal == false)
 		{
-			if (errno == EINTR)
-				continue;
 			this->closeFds();
 			throw std::runtime_error(std::strerror(errno));
 		}
@@ -34,27 +32,29 @@ void Server::startServer()
 
 std::vector<std::string> commandSlicer(char *buff, int start)
 {
+	int hasSemicolon = 0;
 	std::string strBuff(buff);
 	std::vector<std::string> splittedCommands;
 
 	size_t j = start;
 	for (size_t i = start; i < strBuff.size(); i++)
 	{
-		if (strBuff[i] == 32)
+		if (strBuff[i] == 32 && hasSemicolon == 0)
 		{
 			splittedCommands.push_back(strBuff.substr(j, i - j));
 			j = i + 1;
 		}
-		if (strBuff[i] == 13 && i + 1 < strBuff.size() && strBuff[i + 1])
+		if (strBuff[i] == 13 && i + 1 < strBuff.size() && strBuff[i + 1] == '\n')
 		{
 			splittedCommands.push_back(strBuff.substr(j, i - j));
 			Server::command_in_command = i + 2;
 			return splittedCommands;
 		}
-		if (strBuff[i] == ':')
+		if (strBuff[i] == ':' && hasSemicolon == 0)
 		{
-			splittedCommands.push_back(strBuff.substr(j + 1, strBuff.size() -j));
-			return splittedCommands;
+			hasSemicolon = 1;
+			if (i + 1 < strBuff.size() && strBuff[i + 1])
+				j++;
 		}
 	}
 	splittedCommands.push_back(strBuff.substr(j, strBuff.size() -j-1));
@@ -153,7 +153,7 @@ void Server::serverSocketCreate()
 	//create a socket
 	this->_serverSocketFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_serverSocketFd == -1)
-		throw std::runtime_error("Failed to create a socket!");
+		throw std::runtime_error(std::strerror(errno) + std::string(" - Failed to create socket!"));
 
 	//Setup port for listening
 	struct sockaddr_in address;
@@ -214,8 +214,6 @@ void Server::acceptNewClient()
 	if (recievedFd == -1)
 	{
 		std::cerr << "accept() failed! " << std::strerror(errno) << std::endl;
-		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
-			return ;
 		this->closeFds();
 		throw(std::runtime_error("Critical error! Shutting down"));
 	}
