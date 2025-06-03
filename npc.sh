@@ -8,7 +8,7 @@ fi
 SERVER=$1
 PORT=$2
 CHANNEL="test"
-NPC_COUNT=1000
+NPC_COUNT=10
 SIGNAL_FILE="/tmp/npc_message_signal"
 MESSAGE_FILE="/tmp/npc_message_content"
 

@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <poll.h>
+#include <cerrno>
+#include <cstring>
 
 bot::bot(std::string const &server, std::string const &port, std::string const &password,
 			std::string const &nickname, std::vector<std::string> const &channels, std::string const &username, std::string const &realname)
@@ -74,12 +76,12 @@ bool bot::connectServ()
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    getaddrinfo(_server.c_str(), _port.c_str(), &hints, &result);
 	if (_connected) {
 		std::cerr << "Already connected to server" << std::endl;
 		return false;
 	}
-
+	
+	getaddrinfo(_server.c_str(), _port.c_str(), &hints, &result);
 	for (res = result; res != NULL; res = res->ai_next) {
         _socket = socket(res->ai_family, res->ai_socktype,
                      res->ai_protocol);
@@ -158,9 +160,9 @@ static std::string extractSender(const std::string &rawMessage)
 	return rawMessage;
 }
 
-bool checkGreenList(const std::string &sender, const std::string greenList[], size_t size)
+bool checkGreenList(const std::string &sender, const std::vector<std::string> greenList)
 {
-	for (size_t i = 0; i < size; ++i) {
+	for (size_t i = 0; i < greenList.size(); ++i) {
 		if (sender == greenList[i]) {
 			return true;
 		}
@@ -171,24 +173,42 @@ bool checkGreenList(const std::string &sender, const std::string greenList[], si
 void bot::handleMessage(std::vector<std::string> &parts)
 
 {
-	std::string greenList[] = {
-		"aaltinto"
-	};
-	std::string blackList[] = {
-		"shithead",
-		"asshole",
-		"bastard",
-		"bitch",
-		"fuck"
-	};
+    greenList.push_back("aaltinto");
+    // greenList.push_back("bakgun");
+    
+    
+    blackList.push_back("shithead");
+    blackList.push_back("asshole");
+    blackList.push_back("bastard");
+    blackList.push_back("bitch");
+    blackList.push_back("nigga");
+    blackList.push_back("fuck");
+    
+    // ...existing code...
 	std::string sender = extractSender(parts[0]);
 	std::string target = parts[1];
 	std::string channel = parts[2];
-	if (target == "JOIN" && checkGreenList(sender, greenList, sizeof(greenList) / sizeof(greenList[0]))) 
+	if (target == "JOIN") 
 	{
-		std::string message = "MODE " + channel + " +o " + sender;
-		std::cout << message << std::endl;
-		sendRawMessage(message);
+		if (checkGreenList(sender, greenList))
+		{
+			std::string message = "MODE " + channel + " +o " + sender;
+			std::cout << message << std::endl;
+			sendRawMessage(message);
+		}
+		if (_userCurseCount.find(sender) == _userCurseCount.end())
+		{
+			_userCurseCount[sender] = 0;
+		}
+		else
+		{
+			if (_userCurseCount[sender] >= 3)
+			{
+				std::cout << "User " << sender << " has been banned for excessive cursing." << std::endl;
+				sendRawMessage("KICK " + channel + " " + sender + " :Excessive cursing");
+				return;
+			}
+		}
 	}
 	if (target == "PRIVMSG")
 	{
@@ -200,6 +220,19 @@ void bot::handleMessage(std::vector<std::string> &parts)
 			{
 				sendRawMessage("PRIVMSG " + channel + " :Hello " + sender + "!");
 				return;
+			}
+			if (messageParts[i] == "!addCurse")
+			{
+				if (checkGreenList(sender, greenList)) {
+					std::cout << "Adding curse word: " << messageParts[i + 1] << std::endl;
+					// Here you would add the curse word to a persistent storage
+					blackList.push_back(messageParts[i + 1]);
+					sendRawMessage("PRIVMSG " + channel + " :Curse word added: " + messageParts[i + 1]);
+					return;
+				} else {
+					sendRawMessage("PRIVMSG " + channel + " :You do not have permission to add curse words.");
+					return;
+				}
 			}
 			else if (messageParts[i] == "!help")
 			{
@@ -224,8 +257,14 @@ void bot::handleMessage(std::vector<std::string> &parts)
 				sendRawMessage("PRIVMSG " + channel + " :Pong!");
 				return;
 			}
-			else if (std::find(std::begin(blackList), std::end(blackList), messageParts[i]) != std::end(blackList)) {
-				sendRawMessage("PRIVMSG " + channel + " :Please refrain from using offensive language.");
+			else if (checkGreenList(messageParts[i], blackList)) {
+				_userCurseCount[sender]++;
+				if (_userCurseCount[sender] >= 3) {
+					std::cout << "User " << sender << " has been banned for excessive cursing." << std::endl;
+					sendRawMessage("KICK " + channel + " " + sender + " :Excessive cursing");
+					return;
+				}
+				sendRawMessage("PRIVMSG " + channel + " :Please refrain from using offensive language, " + sender + ".");
 				return;
 			}
 		}

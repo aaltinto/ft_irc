@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
+#include <cstring>
 
 static int isPortValid(std::string port)
 {

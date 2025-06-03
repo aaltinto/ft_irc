@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+#include <map>
 
 class bot
 {
@@ -17,7 +19,10 @@ class bot
 		bool		_connected;
 		bool		_authenticated;
 		bool		_running;
+		std::vector<std::string> blackList;
+		std::vector<std::string> greenList;
 		std::vector<std::string> _channels;
+		std::map<std::string, int> _userCurseCount;
 
 	public:
 		/* Constructors & Destructors */

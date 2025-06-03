@@ -51,6 +51,9 @@ void Channels::inviteOnly(Mode mode, int fd)
     {
         if (!this->_inviteOnly)
             return;
+        this->_inviteOnly = false;
+        if (this->_mods.find("i") == std::string::npos)
+            return;
         this->_mods.erase(this->_mods.find("i"), 1);
         message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -i";
     }
@@ -94,7 +97,6 @@ void Channels::setOperator(Mode mode, int fd)
         this->adminOps(*clientToOp, false);
         message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -o " + mode.getArg();
     }
-    write(1, "a\n", 2);
     this->sendMessageToAll(message);
     
 }
@@ -117,6 +119,8 @@ void Channels::topicProtection(Mode mode, int fd)
     else
     {
         if (!this->_topicProtection)
+            return;
+        if (this->_mods.find("t") == std::string::npos)
             return;
         this->_mods.erase(this->_mods.find("t"), 1);
         this->_topicProtection = false;
@@ -192,7 +196,10 @@ void Channels::activateLimit(Mode mode, int fd)
     else
     {
         if (_limit != -1)
+        {
+
             this->_mods.erase(this->_mods.find("l"), 1);
+        }
         this->setLimit();
         message = ":ircserv 324 " + client->getFullIdenifer() + " " + this->getChannelName() + " -l";
     }
