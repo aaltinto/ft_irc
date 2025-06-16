@@ -2,9 +2,7 @@ NAME = ircserv
 
 CC = c++
 
-# Hata ayıklama için -g bayrağını ekleyin
-# Kullanılmayan parametre uyarılarını bastırmak için -Wno-unused-parameter ekleyin
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g -Wno-unused-parameter
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 SRC = server/main.cpp \
 		server/server_build.cpp \

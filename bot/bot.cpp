@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <netdb.h>
-#include <poll.h>
 #include <cerrno>
 #include <cstring>
 
@@ -184,7 +183,6 @@ void bot::handleMessage(std::vector<std::string> &parts)
     blackList.push_back("nigga");
     blackList.push_back("fuck");
     
-    // ...existing code...
 	std::string sender = extractSender(parts[0]);
 	std::string target = parts[1];
 	std::string channel = parts[2];

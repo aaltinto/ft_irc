@@ -104,14 +104,13 @@ void Server::nick(std::vector<std::string> args, int fd)
 	}
 	if (args[1][0] == '@')
 	{
-
+		return erroneusNick(this->getClient(fd), args[1]);
 	}
 	if (this->getClientbyNick(args[1]) != -1)
 	{
 		std::cout << "Nick already in use!" << std::endl;
 		return nickInUse(this->getClient(fd), args[1]);
 	}
-	// if (!this->_clients[i].getNick().empty())
 	msg = ":" + this->_clients[i].getFullIdenifer() + " NICK :" + args[1];
 	this->_clients[i].setNick(args[1]);
 	std::vector <std::string> channels = this->_clients[i].getJoinedChannels();
@@ -234,7 +233,7 @@ void Server::part(std::vector<std::string> args, int fd)
 		return noSuchChannel(this->getClient(fd), args[1]);
 	if (channel->checkClientIsIn(fd) == false)
 		return notInThatChannel(this->getClient(fd), *channel);
-	std::string partMessage;
+	std::string partMessage = " :leaving";
 	if (args.size() == 3)
 		partMessage = ":" + client->getFullIdenifer() + " PART " + channel->getChannelName() + " :" + args[2];
 	channel->sendMessageToAll(partMessage);

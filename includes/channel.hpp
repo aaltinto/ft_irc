@@ -8,8 +8,6 @@ class Channels
 {
 	private:
 		std::string _name;
-		std::string _created_at;
-		std::string _create_time;
 		std::string _topic_name;
 		std::string _password;
 		std::string _mods;
