@@ -23,8 +23,6 @@ Channels::~Channels()
 Channels::Channels(Channels const &channels)
 {
 	this->_name = channels._name;
-	this->_created_at = channels._created_at;
-	this->_create_time = channels._create_time;
 	this->_topic_name = channels._topic_name;
 	this->_mods = channels._mods;
 	this->_password = channels._password;
@@ -43,8 +41,6 @@ Channels const &Channels::operator=(Channels const &channels)
 	return *this;
 	
 	this->_name = channels._name;
-	this->_created_at = channels._created_at;
-	this->_create_time = channels._create_time;
 	this->_topic_name = channels._topic_name;
 	this->_password = channels._password;
 	this->_mods = channels._mods;

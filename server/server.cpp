@@ -56,6 +56,7 @@ Server::Server(Server const &server)
 	this->_clients = server._clients;
 	this->_fds = server._fds;
 	this->_channels = server._channels;
+	this->_clientBuffers = server._clientBuffers;
 }
 
 Server const &Server::operator=(Server &server)
@@ -71,6 +72,7 @@ Server const &Server::operator=(Server &server)
 	this->_clients = server._clients;
 	this->_fds = server._fds;
 	this->_channels = server._channels;
+	this->_clientBuffers = server._clientBuffers;
 
 	return *this;
 }
@@ -155,6 +157,8 @@ void Server::clearClient(int fd, std::string quitMsg)
 			break;
 		}
 	}
+	// Clear client buffer
+	this->_clientBuffers.erase(fd);
 	close(fd);
 }
 

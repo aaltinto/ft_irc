@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <poll.h>
+#include <map>
 #include "../includes/client.hpp"
 #include "../includes/channel.hpp"
 #include "../includes/mode.hpp"
@@ -17,6 +18,7 @@ class Server
 		std::vector<Client> _clients;
 		std::vector<struct pollfd> _fds;
 		std::vector<Channels> _channels;
+		std::map<int, std::string> _clientBuffers;
 
 	public:
 		static int command_in_command;
@@ -50,7 +52,9 @@ class Server
 		void mode(std::vector<std::string> args, int fd);
 		std::vector<Mode> modeSlasher(std::vector<std::string> &args);
 
-		
+		void processCommands(int fd, const std::string& data);
+		std::vector<std::string> splitCommands(const std::string& buffer);
+		std::vector<std::string> parseCommand(const std::string& command);
 
 		void exec_command(int fd, std::vector<std::string> commando);
 		//getters

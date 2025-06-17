@@ -30,36 +30,138 @@ void Server::startServer()
 	closeFds();
 }
 
-std::vector<std::string> commandSlicer(char *buff, int start)
+std::vector<std::string> Server::splitCommands(const std::string& buffer)
 {
-	int hasSemicolon = 0;
-	std::string strBuff(buff);
-	std::vector<std::string> splittedCommands;
-
-	size_t j = start;
-	for (size_t i = start; i < strBuff.size(); i++)
+	std::vector<std::string> commands;
+	std::string current;
+	
+	for (size_t i = 0; i < buffer.size(); i++)
 	{
-		if (strBuff[i] == 32 && hasSemicolon == 0)
+		if (buffer[i] == '\r' && i + 1 < buffer.size() && buffer[i + 1] == '\n')
 		{
-			splittedCommands.push_back(strBuff.substr(j, i - j));
-			j = i + 1;
+			if (!current.empty())
+			{
+				commands.push_back(current);
+				current.clear();
+			}
+			i++; // Skip the \n
 		}
-		if (strBuff[i] == 13 && i + 1 < strBuff.size() && strBuff[i + 1] == '\n')
+		else if (buffer[i] == '\n')
 		{
-			splittedCommands.push_back(strBuff.substr(j, i - j));
-			Server::command_in_command = i + 2;
-			return splittedCommands;
+			if (!current.empty())
+			{
+				commands.push_back(current);
+				current.clear();
+			}
 		}
-		if (strBuff[i] == ':' && hasSemicolon == 0)
+		else
 		{
-			hasSemicolon = 1;
-			if (i + 1 < strBuff.size() && strBuff[i + 1])
-				j++;
+			current += buffer[i];
 		}
 	}
-	splittedCommands.push_back(strBuff.substr(j, strBuff.size() -j-1));
 	
-	return splittedCommands;
+	// If there's remaining data without CRLF, it's incomplete
+	if (!current.empty())
+	{
+		commands.push_back(current);
+	}
+	
+	return commands;
+}
+
+std::vector<std::string> Server::parseCommand(const std::string& command)
+{
+	std::vector<std::string> tokens;
+	std::string current;
+	bool inTrailing = false;
+	
+	for (size_t i = 0; i < command.size(); i++)
+	{
+		if (command[i] == ':' && !inTrailing && (i == 0 || command[i-1] == ' '))
+		{
+			if (!current.empty())
+			{
+				tokens.push_back(current);
+				current.clear();
+			}
+			inTrailing = true;
+			if (i + 1 < command.size())
+				i++; // Skip the ':'
+		}
+		
+		if (inTrailing)
+		{
+			if (i < command.size())
+				current += command[i];
+		}
+		else if (command[i] == ' ')
+		{
+			if (!current.empty())
+			{
+				tokens.push_back(current);
+				current.clear();
+			}
+		}
+		else
+		{
+			current += command[i];
+		}
+	}
+	
+	if (!current.empty())
+		tokens.push_back(current);
+	
+	return tokens;
+}
+
+void Server::processCommands(int fd, const std::string& data)
+{
+	// Add data to client buffer
+	this->_clientBuffers[fd] += data;
+	
+	// Split into complete commands
+	std::vector<std::string> commands = this->splitCommands(this->_clientBuffers[fd]);
+	
+	// Process all complete commands (all but possibly the last one)
+	for (size_t i = 0; i < commands.size(); i++)
+	{
+		// Check if this is the last command and if it ends with CRLF or LF
+		bool isComplete = false;
+		if (i == commands.size() - 1)
+		{
+			// Check if the original buffer ends with CRLF or LF
+			size_t bufferLen = this->_clientBuffers[fd].size();
+			if (bufferLen >= 2 && 
+				this->_clientBuffers[fd].substr(bufferLen - 2) == "\r\n")
+				isComplete = true;
+			else if (bufferLen >= 1 && 
+					this->_clientBuffers[fd][bufferLen - 1] == '\n')
+				isComplete = true;
+		}
+		else
+		{
+			isComplete = true;
+		}
+		
+		if (isComplete)
+		{
+			std::vector<std::string> tokens = this->parseCommand(commands[i]);
+			if (!tokens.empty())
+			{
+				std::cout << "Processing command from fd <" << fd << ">: " << commands[i] << std::endl;
+				this->exec_command(fd, tokens);
+			}
+		}
+		else
+		{
+			// Keep incomplete command in buffer
+			this->_clientBuffers[fd] = commands[i];
+			return;
+		}
+	}
+	
+	// Clear buffer if all commands were processed
+	this->_clientBuffers[fd].clear();
 }
 
 std::string to_lower(std::string str)
@@ -76,6 +178,9 @@ std::string to_lower(std::string str)
 
 void Server::exec_command(int fd, std::vector<std::string> commando)
 {
+	if (commando.empty())
+		return;
+		
 	std::string list[] = {
 		"join",
 		"pass",
@@ -118,33 +223,21 @@ void Server::recieveNewData(int fd)
 {
 	char buff[1024];
 	memset(buff, 0, sizeof(buff));
-	ssize_t bytes = recv(fd, buff, sizeof(buff) -1, 0);
+	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0);
+	
 	if (bytes <= 0)
 	{
-		std::cout << "Client disconnected <" << fd << ">" << std::endl;
+		if (bytes == 0)
+			std::cout << "Client <" << fd << "> disconnected (EOF)" << std::endl;
+		else
+			std::cout << "Client <" << fd << "> disconnected (error)" << std::endl;
 		this->clearClient(fd);
 	}
 	else
 	{
 		buff[bytes] = '\0';
-		int max = 1;
-
-		std::vector<std::string> commands = commandSlicer(buff, 0);
-		std::vector<std::vector<std::string> > commando;
-		commando.push_back(commands);
-
-		for (int i = 0; i < max; i++)
-		{
-			if (Server::command_in_command != -1)
-			{
-				int k = Server::command_in_command;
-				max++;
-				commando.push_back(commandSlicer(buff, Server::command_in_command));
-				if (Server::command_in_command == k)
-					Server::command_in_command = -1;
-			}
-			this->exec_command(fd, commando[i]);
-		}
+		std::string data(buff);
+		this->processCommands(fd, data);
 	}
 }
 
@@ -239,5 +332,9 @@ void Server::acceptNewClient()
 	}
 	newClient.setIpAddr(ip);
 	this->_clients.push_back(newClient);
+	
+	// Initialize buffer for new client
+	this->_clientBuffers[recievedFd] = "";
+	
 	std::cout << "Client connected.\nRecieved fd <" << recievedFd << ">" << std::endl;
 }
