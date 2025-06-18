@@ -152,6 +152,7 @@ void Channels::setKey(Mode mode, int fd)
     {
         if (!this->isProtected())
             return ;
+        this->_IsProtected = false;
         this->_mods.erase(this->_mods.find("k"), 1);
         this->setPass("");
         message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -k";
@@ -172,14 +173,10 @@ void Channels::activateLimit(Mode mode, int fd)
         if (mode.getArg().empty())
             return notEnoughParameters(client, "MODE +l", this->getChannelName());
         for (size_t i = 0; i < mode.getArg().size(); i++)
-        {
             if (!std::isdigit(mode.getArg()[i]))
-            {
-                //t#########
-                std::cout << "Invalid limit" << std::endl;
-                return;
-            }
-        }
+                return invalidArgument(client,
+                    std::string(1, mode.getSign() ? '+' : '-') + std::string(1, mode.getFlag()),
+                    mode.getArg(), this->getChannelName(), "Positive integer expected");
         int num = std::atoi(mode.getArg().c_str());
         if (num <= 0)
         {

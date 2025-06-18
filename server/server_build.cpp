@@ -44,7 +44,7 @@ std::vector<std::string> Server::splitCommands(const std::string& buffer)
 				commands.push_back(current);
 				current.clear();
 			}
-			i++; // Skip the \n
+			i++;
 		}
 		else if (buffer[i] == '\n')
 		{
@@ -59,8 +59,6 @@ std::vector<std::string> Server::splitCommands(const std::string& buffer)
 			current += buffer[i];
 		}
 	}
-	
-	// If there's remaining data without CRLF, it's incomplete
 	if (!current.empty())
 	{
 		commands.push_back(current);
@@ -86,7 +84,7 @@ std::vector<std::string> Server::parseCommand(const std::string& command)
 			}
 			inTrailing = true;
 			if (i + 1 < command.size())
-				i++; // Skip the ':'
+				i++;
 		}
 		
 		if (inTrailing)
@@ -116,20 +114,15 @@ std::vector<std::string> Server::parseCommand(const std::string& command)
 
 void Server::processCommands(int fd, const std::string& data)
 {
-	// Add data to client buffer
 	this->_clientBuffers[fd] += data;
 	
-	// Split into complete commands
 	std::vector<std::string> commands = this->splitCommands(this->_clientBuffers[fd]);
 	
-	// Process all complete commands (all but possibly the last one)
 	for (size_t i = 0; i < commands.size(); i++)
 	{
-		// Check if this is the last command and if it ends with CRLF or LF
 		bool isComplete = false;
 		if (i == commands.size() - 1)
 		{
-			// Check if the original buffer ends with CRLF or LF
 			size_t bufferLen = this->_clientBuffers[fd].size();
 			if (bufferLen >= 2 && 
 				this->_clientBuffers[fd].substr(bufferLen - 2) == "\r\n")
@@ -154,13 +147,11 @@ void Server::processCommands(int fd, const std::string& data)
 		}
 		else
 		{
-			// Keep incomplete command in buffer
 			this->_clientBuffers[fd] = commands[i];
 			return;
 		}
 	}
 	
-	// Clear buffer if all commands were processed
 	this->_clientBuffers[fd].clear();
 }
 

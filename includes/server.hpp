@@ -88,6 +88,6 @@ void inviteOnlyChannel(Client *client, Channels *channel);
 void passwordRequired(Client *client, Channels *channel);
 void channelLimitExceeded(Client *client, Channels *channel);
 void passwordIncorrect(Client *client, Channels *channel);
-void invalidLimit(Client *client, Channels *channel);
+void invalidArgument(Client *client, std::string command, std::string argument, std::string channel = "", std::string correctUsage = "");
 void nickInUse(Client *client, std::string nick);
 void erroneusNick(Client *client, std::string nick);
