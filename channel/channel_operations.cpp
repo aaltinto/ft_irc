@@ -9,34 +9,27 @@ void Server::addChannel(std::string channelName, Client &client)
 {
 	if (client.isAuth() == false)
 	{
-		std::cout << "Password required!" << std::endl;
 		passwordRequired(&client, NULL);
 		this->clearClient(client.getFd());
 		return;
 	}
 	client.addChannel(channelName);
-	std::cout << "get joined channels: " << client.getJoinedChannels().size() << std::endl;
 	Channels channel(client, channelName);
 	this->_channels.push_back(channel);
-	Client *clientPtr = this->getClient(client.getFd());
-	std::cout << "get joined channels after: " << clientPtr->getJoinedChannels().size() << std::endl;
 	this->handleJoin(client, channel);
-	std::cout << "Client " << client.getFd() << " joined " << channel.getChannelName() << std::endl;
+	std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mChannel\033[0m \033[1;36m" << channelName << "\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mClient\033[0m \033[1;36m#" << client.getFd() << "\033[0m \033[1;32mcreated and joined channel\033[0m" << std::endl
+          << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 }
 
-// irc numeric replies
-// https://gist.github.com/proxypoke/2264878
 void Server::join(std::vector<std::string> args, int fd)
 {
 	Client *client = this->getClient(fd);
 	if (!client)
-	{
-		std::cout << "Client not found!" << std::endl;
 		return;
-	}
 	if (client->isAuth() == false)
 	{
-		std::cout << "Client not authed!" << std::endl;
 		passwordRequired(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
@@ -44,12 +37,8 @@ void Server::join(std::vector<std::string> args, int fd)
 	if (args.size() <= 1)
 		return notEnoughParameters(client, "JOIN");
 	if (args[1][0] != '#')
-	{
-		std::cout << "Channel name has to start with '#'" << std::endl;
 		return invalidChannelName(client, args[1]);
-	}
 
-	std::cout << "join" << std::endl;
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (channel != NULL)
 	{
@@ -72,7 +61,6 @@ void Server::join(std::vector<std::string> args, int fd)
 
 	this->addChannel(args[1], *client);
 }
-#include <cctype>
 
 bool nickChecker(std::string nick)
 {
@@ -89,7 +77,6 @@ bool nickChecker(std::string nick)
 void Server::nick(std::vector<std::string> args, int fd)
 {
 	std::string msg;
-	std::cout << "nick" << std::endl;
 	if (args.size() < 2)
 		return notEnoughParameters(this->getClient(fd), "NICK");
 	int i = this->getClientIndex(fd);
@@ -97,7 +84,6 @@ void Server::nick(std::vector<std::string> args, int fd)
 		return;
 	if (this->_clients[i].isAuth() == false)
 	{
-		std::cout << "Password required!" << std::endl;
 		passwordRequired(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
@@ -107,10 +93,7 @@ void Server::nick(std::vector<std::string> args, int fd)
 		return erroneusNick(this->getClient(fd), args[1]);
 	}
 	if (this->getClientbyNick(args[1]) != -1)
-	{
-		std::cout << "Nick already in use!" << std::endl;
 		return nickInUse(this->getClient(fd), args[1]);
-	}
 	msg = ":" + this->_clients[i].getFullIdenifer() + " NICK :" + args[1];
 	this->_clients[i].setNick(args[1]);
 	std::vector <std::string> channels = this->_clients[i].getJoinedChannels();
@@ -120,17 +103,13 @@ void Server::nick(std::vector<std::string> args, int fd)
 	{
 		Channels *channel = this->getChannelbyName(channels[i]);
 		if (!channel)
-		{
-			std::cout << "Channel not found!" << std::endl;
 			continue;
-		}
 		channel->sendMessageToAll(msg);
 	}
 }
 
 void Server::user(std::vector<std::string> args, int fd)
 {
-	std::cout << "user" << std::endl;
 	if (args.size() < 5)
 		return notEnoughParameters(this->getClient(fd), "USER");
 
@@ -139,7 +118,6 @@ void Server::user(std::vector<std::string> args, int fd)
 		return;
 	if (this->_clients[i].isAuth() == false)
 	{
-		std::cout << "Password required!" << std::endl;
 		passwordRequired(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
@@ -151,7 +129,6 @@ void Server::user(std::vector<std::string> args, int fd)
 
 void Server::privmsg(std::vector<std::string> args, int fd)
 {
-	std::cout << "messgae" << std::endl;
 	if (args.size() < 3)
 		return notEnoughParameters(this->getClient(fd), "PRIVMSG");
 	Client *client = this->getClient(fd);
@@ -159,7 +136,6 @@ void Server::privmsg(std::vector<std::string> args, int fd)
 		return;
 	if (client->isAuth() == false)
 	{
-		std::cout << "Password required!" << std::endl;
 		passwordRequired(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
@@ -183,7 +159,6 @@ void Server::privmsg(std::vector<std::string> args, int fd)
 
 void Server::topic(std::vector<std::string> args, int fd)
 {
-	std::cout << "topic" << std::endl;
 	if (args.size() < 2)
 		return notEnoughParameters(this->getClient(fd), "TOPIC");
 	Client *client = this->getClient(fd);
@@ -191,7 +166,6 @@ void Server::topic(std::vector<std::string> args, int fd)
 		return;
 	if (client->isAuth() == false)
 	{
-		std::cout << "Password required!" << std::endl;
 		passwordRequired(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
@@ -204,10 +178,7 @@ void Server::topic(std::vector<std::string> args, int fd)
 	if (args.size() == 2)
 		return this->sendTopic(fd, *channel);
 	if (channel->isTopicProtected() && !channel->isAdmin(fd))
-	{
-		std::cout << "Permission denied!" << std::endl;
 		return permissionDenied(this->getClient(fd), *channel);
-	}
 	channel->setTopicName(args[2]);
 	std::string topicUpdate = ":" + client->getFullIdenifer() + " TOPIC " + channel->getChannelName() + " :" + args[2];
 	channel->sendMessageToAll(topicUpdate);
@@ -215,7 +186,6 @@ void Server::topic(std::vector<std::string> args, int fd)
 
 void Server::part(std::vector<std::string> args, int fd)
 {
-	std::cout << "part" << std::endl;
 	if (args.size() < 2)
 		return notEnoughParameters(this->getClient(fd), "PART");
 	Client *client = this->getClient(fd);
@@ -223,7 +193,6 @@ void Server::part(std::vector<std::string> args, int fd)
 		return;
 	if (client->isAuth() == false)
 	{
-		std::cout << "Password required!" << std::endl;
 		passwordRequired(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
@@ -239,10 +208,12 @@ void Server::part(std::vector<std::string> args, int fd)
 	channel->sendMessageToAll(partMessage);
 	client->removeChannel(args[1]);
 	channel->partChannel(*client);
-	std::cout << channel->getClientCount() << std::endl;
 	if (channel->getClientCount() == 0)
 	{
-		std::cout << "Channel " << channel->getChannelName() << " is empty, removing it!" << std::endl;
+		std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mChannel\033[0m \033[1;36m" << channel->getChannelName() << "\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;31mEmpty channel removed\033[0m" << std::endl
+          << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 		this->removeChannel(channel->getChannelName());
 	}
 }
@@ -251,34 +222,30 @@ void Server::part(std::vector<std::string> args, int fd)
 
 void Server::quit(std::vector<std::string> args, int fd)
 {
-	std::cout << "quit" << std::endl;
 	if (args.size() < 2)
 		return notEnoughParameters(this->getClient(fd), "QUIT");
 	int i = this->getClientIndex(fd);
 	if (i == -1)
-	{
-		std::cout << "Client not found!" << std::endl;
 		return;
-	}
 	if (this->_clients[i].isAuth() == false)
 	{
-		std::cout << "Password required!" << std::endl;
 		passwordRequired(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
 	}
 	std::vector<std::string> channels = this->_clients[i].getJoinedChannels();
 	this->clearClient(fd, args[1]);
-	std::cout << "channels size: " << channels.size() << std::endl;
 	for (size_t i = 0; i < channels.size(); i++)
 	{
 		Channels *channel = this->getChannelbyName(channels[i]);
 		if (!channel)
 			continue;
-		std::cout << "client count: " << channel->getClientCount() << std::endl;
 		if (channel->getClientCount() == 0)
 		{
-			std::cout << "Channel " << channel->getChannelName() << " is empty, removing it!" << std::endl;
+			std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mChannel\033[0m \033[1;36m#" << channel->getChannelName() << "\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;31mEmpty channel removed\033[0m" << std::endl
+          << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 			this->removeChannel(channels[i]);
 		}
 	}
@@ -286,7 +253,6 @@ void Server::quit(std::vector<std::string> args, int fd)
 
 void Server::kick(std::vector<std::string> args, int fd)
 {
-	std::cout << "kick" << std::endl;
 	if (args.size() < 3)
 		return notEnoughParameters(this->getClient(fd), "KICK");
 	
@@ -295,7 +261,6 @@ void Server::kick(std::vector<std::string> args, int fd)
 		return;
 	if (kicker->isAuth() == false)
 	{
-		std::cout << "Password required!" << std::endl;
 		passwordRequired(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
@@ -306,10 +271,7 @@ void Server::kick(std::vector<std::string> args, int fd)
 	if (channel->checkClientIsIn(fd) == false)
 		return notInThatChannel(this->getClient(fd), *channel);
 	if (!channel->isAdmin(fd))
-	{
-		std::cout << "Permission denied!" << std::endl;
 		return permissionDenied(this->getClient(fd), *channel);
-	}
 	int client_fd = channel->getClientByNick(args[2]);
 	if (client_fd == -1)
 		return noSuchNick(this->getClient(fd), args[2], channel->getChannelName());
@@ -327,7 +289,6 @@ void Server::kick(std::vector<std::string> args, int fd)
 
 void Server::pass(std::vector<std::string> args, int fd)
 {
-	std::cout << "pass" << std::endl;
 	int i = this->getClientIndex(fd);
 	if (i == -1)
 		return;
@@ -335,24 +296,23 @@ void Server::pass(std::vector<std::string> args, int fd)
 		return;
 	if (args.size() < 2)
 	{
-		std::cout << "Password required!" << std::endl;
 		passwordRequired(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
 	}
 	if (args[1] != this->_password)
 	{
-		std::cout << "Password incorrect!" << std::endl;
 		passwordIncorrect(this->getClient(fd), NULL);
 		this->clearClient(fd);
 		return;
 	}
 	this->_clients[i].auth(true);
+	std::string errMsg = ":server 464 " + _clients[i].getFullIdenifer() + " :Password correct";
+	return sendMessage(fd, errMsg);
 }
 
 void Server::invite(std::vector<std::string> args, int fd)
 {
-	std::cout << "invite" << std::endl;
 	if (args.size() < 3)
 		return notEnoughParameters(this->getClient(fd), "INVITE");
 	Client *inviter = this->getClient(fd);
@@ -360,31 +320,22 @@ void Server::invite(std::vector<std::string> args, int fd)
 		return;
 	if (inviter->isAuth() == false)
 	{
-		std::cout << "Client not authed!" << std::endl;
+		passwordRequired(this->getClient(fd), NULL);
+		this->clearClient(fd);
 		return;
 	}
 	int clientFd = this->getClientbyNick(args[1]);
 	if (clientFd == -1)
-	{
-		std::cout << "No such nick!" << std::endl;
 		return noSuchNick(this->getClient(fd), args[1], args[2]);
-	}
 	Channels *channel = this->getChannelbyName(args[2]);
 	if (!channel)
-	{
-		std::cout << "No such channel!" << std::endl;
 		return noSuchChannel(this->getClient(fd), args[2]);
-	}
 	if (channel->checkClientIsIn(fd) == false)
-	{
-		std::cout << "Not in that channel!" << std::endl;
 		return notInThatChannel(this->getClient(fd), *channel);
-	}
 	if (channel->isTopicProtected() && !channel->isAdmin(fd))
 		return permissionDenied(this->getClient(fd), *channel);
 	channel->addInvitedClient(args[1]);
 	this->_channels[this->getChannelIndex(args[2])] = *channel;
-	//store the invitee's fd for check in if the channel invite only
 	std::string inviteMsg = ":" + inviter->getFullIdenifer() + " INVITE " + args[1] + " " + args[2];
 	sendMessage(clientFd, inviteMsg);
 }
@@ -427,7 +378,6 @@ std::vector<Mode> Server::modeSlasher(std::vector<std::string> &args)
 			else
 				mode.setArg("");
 			modes.push_back(mode);
-			std::cout << "Mode: " << mode.getSign() << mode.getFlag() << " " << mode.getArg() << std::endl; 
 		}
 	}
 	return modes;
@@ -435,7 +385,6 @@ std::vector<Mode> Server::modeSlasher(std::vector<std::string> &args)
 
 void Server::mode(std::vector<std::string> args, int fd)
 {
-	std::cout << "mode" << std::endl;
 	if (args.size() < 2)
 		return notEnoughParameters(this->getClient(fd), "MODE");
 	Client *client = this->getClient(fd);
@@ -443,22 +392,13 @@ void Server::mode(std::vector<std::string> args, int fd)
 		return ;
 	Channels *channel = this->getChannelbyName(args[1]);
 	if (!channel)
-	{
-		std::cerr << "No such channel" << std::endl;
 		return noSuchChannel(this->getClient(fd), args[1]);
-	}
 	if (channel->checkClientIsIn(fd) == false)
-	{
-		std::cerr << "Not in that channel" << std::endl;
 		return notInThatChannel(this->getClient(fd), *channel);
-	}
 	if (args.size() == 2 || args[2].empty())
 		return printModes(*client, args[1], channel->getMods());
 	if (!channel->isAdmin(client->getFd()))
-	{
-		std::cout << "Permission denied!" << std::endl;
 		return permissionDenied(this->getClient(fd), *channel);
-	}
 	std::vector<Mode> modes = modeSlasher(args);
 	if (!modes.empty())
 		channel->setMode(modes, fd);

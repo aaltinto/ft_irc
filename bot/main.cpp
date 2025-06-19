@@ -13,7 +13,7 @@ std::vector<std::string> splitChannels(const std::string& channelsStr) {
 
     for (size_t i = 0; i < channels.size(); ++i) {
         if (channels[i][0] != '#') {
-            channels[i] = '#' + channels[i]; // Ensure channel starts with #
+            channels[i] = '#' + channels[i];
         }
     }
     for (size_t i = 0; i < channels.size(); ++i) 

@@ -32,12 +32,10 @@ class Server
 		void acceptNewClient();
 		void recieveNewData(int fd);
 
-
-		//messages
+		/*messages*/
 		void sendTopic(int fd, Channels channel);
 
-
-		//commands
+		/*commands*/
 		void join(std::vector<std::string> args, int fd);
 		void handleJoin(Client client, Channels channel);
 		void nick(std::vector<std::string> args, int fd);
@@ -57,7 +55,8 @@ class Server
 		std::vector<std::string> parseCommand(const std::string& command);
 
 		void exec_command(int fd, std::vector<std::string> commando);
-		//getters
+		
+		/*getters*/
 		Channels *getChannelbyName(std::string channelName);
 		int getChannelIndex(std::string channelName);
 		Client *getClient(int fd);
@@ -77,7 +76,7 @@ class Server
 std::string to_lower(std::string str);
 void sendMessage(int fd, const std::string message);
 
-//errros
+/*errros*/
 void noSuchChannel(Client *client, std::string channelName);
 void noSuchNick(Client *client,std::string nickName, std::string channelName="");
 void permissionDenied(Client *client, Channels channel);

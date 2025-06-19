@@ -25,7 +25,7 @@ class Channels
 		Channels const &operator=(Channels const &Channels);
 		~Channels();
 		
-		//operations
+		/*operations*/
 		void joinChannel(Client &client);
 		void partChannel(Client &client);
 		void adminOps(Client &client, bool value = true);
@@ -33,7 +33,7 @@ class Channels
 		void removeInvitedClient(std::string nickname);
 		void sendMessageToAll(std::string message, int excludeFd = 0);
 
-		//checks
+		/*checks*/
 		bool checkClientIsIn(int fd);
 		bool isTopicProtected();
 		bool isProtected();
@@ -42,7 +42,7 @@ class Channels
 		int isAdmin(int fd);
 		int checkLimitExceeded();
 
-		//getters
+		/*getters*/
 		std::string getPass() const;
 		std::string getChannelName() const;
 		std::string getChannelClients();
@@ -53,7 +53,7 @@ class Channels
 		std::string getMods() const;
 		int getClientCount();
 
-		//setters
+		/*setters*/
 		void setTopicName(std::string topicName);
 		void setChannelName(std::string channelName);
 		void setPass(std::string pass);
@@ -62,12 +62,11 @@ class Channels
 
 		void unknownModeFlag(int fd, char flag);
 
-		//modes
+		/*modes*/
 		void setMode(std::vector<Mode> modes, int fd);
 		void inviteOnly(Mode mode, int fd);
 		void topicProtection(Mode mode, int fd);
 		void activateLimit(Mode mode, int fd);
 		void setKey(Mode mode, int fd);
 		void setOperator(Mode mode, int fd);
-
 };

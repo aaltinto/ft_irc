@@ -12,7 +12,6 @@ static int isPortValid(std::string port)
 		if (!isdigit(port[i]))
 			throw std::runtime_error("Port number contains non-digit characters!");
 	int tmpPort = std::atoi(port.c_str());
-	// 0-1023 are reserved ports.
 	if (tmpPort < 1024 || tmpPort > 65535)
 		throw std::runtime_error("Port number is not in range 1024-65535!");
 	return tmpPort;
@@ -29,7 +28,10 @@ int Server::command_in_command = -1;
 bool Server::_signal = false;
 void Server::signalHandler(int signum)
 {
-	std::cout << "Signal recieved: " << signum << std::endl;
+	std::cout << "\n\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;33mServer Signal\033[0m \033[1;36m#" << signum << "\033[0m \033[1;33mreceived\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;31mShutting down gracefully...\033[0m" << std::endl
+          << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 	Server::_signal = true;
 }
 
@@ -43,7 +45,6 @@ Server::Server(std::string port, std::string password){
 
 
 Server::~Server(){
-	system("leaks ircserv");
 }
 
 Server::Server(Server const &server)
@@ -144,7 +145,10 @@ void Server::clearClient(int fd, std::string quitMsg)
 		this->_channels[j].partChannel(this->_clients[index]);
 		if (this->_channels[j].getClientCount() == 0)
 		{
-			std::cout << "Channel " << this->_channels[j].getChannelName() << " is empty, removing it!" << std::endl;
+			std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mChannel\033[0m \033[1;36m" << _channels[j].getChannelName() << "\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;31mEmpty channel removed\033[0m" << std::endl
+          << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 			this->removeChannel(this->_channels[j].getChannelName());
 		}
 	}
@@ -157,7 +161,6 @@ void Server::clearClient(int fd, std::string quitMsg)
 			break;
 		}
 	}
-	// Clear client buffer
 	this->_clientBuffers.erase(fd);
 	close(fd);
 }

@@ -7,7 +7,7 @@
 
 int err(std::string err)
 {
-	std::cout << err << std::endl;
+	std::cerr << err << std::endl;
 	return 1;
 }
 

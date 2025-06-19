@@ -74,7 +74,6 @@ void Channels::unknownModeFlag(int fd, char flag)
 
 void inviteOnlyChannel(Client *client, Channels *channel)
 {
-	std::cout << "Channel is invite only!" << std::endl;
 	if (!client || !channel)
 		return;
 	std::string errMsg = ":server 473 "

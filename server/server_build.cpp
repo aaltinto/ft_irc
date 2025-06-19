@@ -141,7 +141,11 @@ void Server::processCommands(int fd, const std::string& data)
 			std::vector<std::string> tokens = this->parseCommand(commands[i]);
 			if (!tokens.empty())
 			{
-				std::cout << "Processing command from fd <" << fd << ">: " << commands[i] << std::endl;
+				std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl;
+    			std::cout << "\033[36m│\033[0m \033[1;34mClient\033[0m \033[1;36m#" << fd << "\033[0m \033[1;34mcommand:\033[0m" << std::endl;
+    			std::cout << "\033[36m│\033[0m \033[1;32m➜\033[0m  \033[1;37m" << commands[i] << "\033[0m" << std::endl;
+    			std::cout << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
+    
 				this->exec_command(fd, tokens);
 			}
 		}
@@ -200,8 +204,6 @@ void Server::exec_command(int fd, std::vector<std::string> commando)
 		&Server::quit
 	};
 
-	for (size_t j = 0; j < commando.size(); j++)
-		std::cout << "command[" << j << "]: " << commando[j] << std::endl;
 	std::string lowerCommand = to_lower(commando[0]);
 	int cmd = 0;
 	while (cmd < list_size && lowerCommand != list[cmd])
@@ -219,9 +221,17 @@ void Server::recieveNewData(int fd)
 	if (bytes <= 0)
 	{
 		if (bytes == 0)
-			std::cout << "Client <" << fd << "> disconnected (EOF)" << std::endl;
+		{
+			std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+			<< "\033[36m│\033[0m \033[1;31mDisconnected\033[0m \033[1;36m#" << fd << "\033[0m \033[1;31m(EOF)\033[0m" << std::endl
+			<< "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
+		}
 		else
-			std::cout << "Client <" << fd << "> disconnected (error)" << std::endl;
+		{
+			std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+			<< "\033[36m│\033[0m \033[1;31mDisconnected\033[0m \033[1;36m#" << fd << "\033[0m \033[1;31m(error)\033[0m" << std::endl
+			<< "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
+		}
 		this->clearClient(fd);
 	}
 	else
@@ -234,26 +244,22 @@ void Server::recieveNewData(int fd)
 
 void Server::serverSocketCreate()
 {
-	//create a socket
 	this->_serverSocketFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_serverSocketFd == -1)
 		throw std::runtime_error(std::strerror(errno) + std::string(" - Failed to create socket!"));
 
-	//Setup port for listening
 	struct sockaddr_in address;
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
 	address.sin_port = htons(this->_port);
 	
-	//Set port for nonblock mode
 	if (fcntl(this->_serverSocketFd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cerr << "fcntl() failed! " << std::strerror(errno) << std::endl;
 		close(this->_serverSocketFd);
 		throw std::runtime_error("Failed to set nonblock mode!");
 	}
-	
-	//bind the socket with port
+
 	if (bind(this->_serverSocketFd, (struct sockaddr*)&address, sizeof(address)) == -1)
 	{
 		std::cerr << "bind() failed! " << std::strerror(errno) << std::endl;
@@ -282,7 +288,9 @@ void Server::closeFds()
 		this->clearClient(this->_clients[i].getFd());
 	if (this->_serverSocketFd != -1)
 	{
-		std::cout << "Server <" << this->_serverSocketFd << "> Disconnected" << std::endl;
+		std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;33mServer\033[0m \033[1;36m#" << this->_serverSocketFd << "\033[0m \033[1;33mDisconnected\033[0m" << std::endl
+          << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 		close(this->_serverSocketFd);
 	}
 }
@@ -323,9 +331,11 @@ void Server::acceptNewClient()
 	}
 	newClient.setIpAddr(ip);
 	this->_clients.push_back(newClient);
-	
-	// Initialize buffer for new client
+
 	this->_clientBuffers[recievedFd] = "";
 	
-	std::cout << "Client connected.\nRecieved fd <" << recievedFd << ">" << std::endl;
+	std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;32mNew Connection\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mClient\033[0m \033[1;36m#" << recievedFd << "\033[0m \033[1;32mconnected\033[0m" << std::endl
+          << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 }

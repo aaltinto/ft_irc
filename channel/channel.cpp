@@ -83,7 +83,10 @@ void Channels::joinChannel(Client &client)
 		if (client.getFd() == this->_clients[i].getFd())
 			return;
 	this->_clients.push_back(client);
-	std::cout << "Client " << client.getFd() << " joined " << this->getChannelName() <<std::endl;
+	std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mChannel\033[0m \033[1;36m" << this->getChannelName() << "\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mClient\033[0m \033[1;36m#" << client.getFd() << "\033[0m \033[1;32mjoined channel\033[0m" << std::endl
+          << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 }
 
 void Channels::partChannel(Client &client)
@@ -93,7 +96,10 @@ void Channels::partChannel(Client &client)
 		if (client.getFd() == this->_clients[i].getFd())
 		{
 			this->_clients.erase(this->_clients.begin() + i);
-			std::cout << "Client " << client.getFd() << " left " << this->getChannelName() <<std::endl;
+			std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mChannel\033[0m \033[1;36m" << this->getChannelName() << "\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mClient\033[0m \033[1;36m#" << client.getFd() << "\033[0m \033[1;31mleft channel\033[0m" << std::endl
+          << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 			return;
 		}
 	}
@@ -102,7 +108,10 @@ void Channels::partChannel(Client &client)
 		if (client.getFd() == this->_admin[i].getFd())
 		{
 			this->_admin.erase(this->_admin.begin() + i);
-			std::cout << "Client " << client.getFd() << " left " << this->getChannelName() <<std::endl;
+			std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mChannel\033[0m \033[1;36m" << this->getChannelName() << "\033[0m" << std::endl
+          << "\033[36m│\033[0m \033[1;34mAdmin\033[0m \033[1;36m#" << client.getFd() << "\033[0m \033[1;31mleft channel\033[0m" << std::endl
+          << "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 			return;
 		}
 	}

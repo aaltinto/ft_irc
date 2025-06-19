@@ -172,16 +172,7 @@ bool checkGreenList(const std::string &sender, const std::vector<std::string> gr
 void bot::handleMessage(std::vector<std::string> &parts)
 
 {
-    greenList.push_back("aaltinto");
-    // greenList.push_back("bakgun");
-    
-    
-    blackList.push_back("shithead");
-    blackList.push_back("asshole");
-    blackList.push_back("bastard");
-    blackList.push_back("bitch");
-    blackList.push_back("nigga");
-    blackList.push_back("fuck");
+    greenList.push_back("aaltinto"); 
     
 	std::string sender = extractSender(parts[0]);
 	std::string target = parts[1];
@@ -223,7 +214,6 @@ void bot::handleMessage(std::vector<std::string> &parts)
 			{
 				if (checkGreenList(sender, greenList)) {
 					std::cout << "Adding curse word: " << messageParts[i + 1] << std::endl;
-					// Here you would add the curse word to a persistent storage
 					blackList.push_back(messageParts[i + 1]);
 					sendRawMessage("PRIVMSG " + channel + " :Curse word added: " + messageParts[i + 1]);
 					return;

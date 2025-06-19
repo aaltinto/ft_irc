@@ -34,7 +34,6 @@ void Channels::setMode(std::vector<Mode> modes, int fd)
 
 void Channels::inviteOnly(Mode mode, int fd)
 {
-    std::cout << "inviteOnly" << std::endl;
     std::string message;
     Client *client = this->getClient(fd);
     if (!client)
@@ -59,10 +58,9 @@ void Channels::inviteOnly(Mode mode, int fd)
     }
     this->sendMessageToAll(message);
 }
-#include <unistd.h>
+
 void Channels::setOperator(Mode mode, int fd)
 {
-    std::cout << "set operator" << std::endl;
     std::string message;
     Client *client = this->getClient(fd);
     if (!client)
@@ -74,10 +72,7 @@ void Channels::setOperator(Mode mode, int fd)
         return notInThatChannel(client, *this);
     Client *clientToOp = this->getClient(clientToOpFd);
     if (!clientToOp)
-    {
-        std::cerr << "No such client" << std::endl;
         return;
-    }
     if (mode.getSign() == 1)
     {
         if (this->isAdmin(clientToOpFd))
@@ -98,12 +93,10 @@ void Channels::setOperator(Mode mode, int fd)
         message = ":ircserv 324 " +  client->getFullIdenifer() + " " + this->getChannelName() + " -o " + mode.getArg();
     }
     this->sendMessageToAll(message);
-    
 }
 
 void Channels::topicProtection(Mode mode, int fd)
 {
-    std::cout << "topicProtection" << std::endl;
     std::string message;
     Client *client = this->getClient(fd);
     if (!client)
@@ -131,7 +124,6 @@ void Channels::topicProtection(Mode mode, int fd)
 
 void Channels::setKey(Mode mode, int fd)
 {
-    std::cout << "setKey" << std::endl;
     Client *client = this->getClient(fd);
     std::string message;
     if (!client)
@@ -162,8 +154,6 @@ void Channels::setKey(Mode mode, int fd)
 
 void Channels::activateLimit(Mode mode, int fd)
 {
-    std::cout << "set limit" << std::endl;
-
     Client *client = this->getClient(fd);
     std::string message;
     if (!client)

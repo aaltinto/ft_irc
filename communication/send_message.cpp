@@ -43,10 +43,6 @@ void Channels::sendMessageToAll(std::string message, int excludeFd)
 void Server::handleJoin(Client client, Channels channel)
 {
     std::string joinMsg = ":" + client.getFullIdenifer() + " JOIN " + channel.getChannelName();
-    std::cout << joinMsg << std::endl;
-
-    
-
     std::string namesMsg = ":ircserv 353 " + client.getFullIdenifer() + " = " + channel.getChannelName() + " :" + channel.getChannelClients();
     std::string endNamesMsg = ":ircserv 366 " + client.getFullIdenifer() + " " + channel.getChannelName() + " :End of /NAMES list.";
 
