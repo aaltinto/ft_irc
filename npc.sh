@@ -60,7 +60,7 @@ for i in $(seq 1 $NPC_COUNT); do
                 if [ -f "$SIGNAL_FILE" ]; then
                     MESSAGE=$(cat "$MESSAGE_FILE" 2>/dev/null)
                     if [ -n "$MESSAGE" ]; then
-                        echo "PRIVMSG #${CHANNEL} :${MESSAGE} from ${NPC_NAME}"
+                        echo "PRIVMSG #${CHANNEL} :${MESSAGE}"
                         # Small random delay to prevent flooding
                         sleep $(echo "scale=4; 0.1 + 0.2 * $RANDOM / 32767" | bc)
                     fi
@@ -89,6 +89,7 @@ while true; do
     
     if [ "$USER_MESSAGE" = "exit" ]; then
         cleanup
+        exit 0
     else
         # Create signal files for NPCs
         echo "$USER_MESSAGE" > $MESSAGE_FILE
