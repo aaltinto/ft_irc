@@ -229,7 +229,7 @@ void Server::recieveNewData(int fd)
 		else
 		{
 			std::cout << "\033[36m╭─────────────────────────────────────────╮\033[0m" << std::endl
-			<< "\033[36m│\033[0m \033[1;31mDisconnected\033[0m \033[1;36m#" << fd << "\033[0m \033[1;31m(error)\033[0m" << std::endl
+			<< "\033[36m│\033[0m \033[1;31mDisconnected\033[0m \033[1;36m#" << fd << "\033[0m \033[1;31m" << std::strerror(errno)<< "\033[0m" << std::endl
 			<< "\033[36m╰─────────────────────────────────────────╯\033[0m" << std::endl;
 		}
 		this->clearClient(fd);
